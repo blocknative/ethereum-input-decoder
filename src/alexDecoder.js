@@ -1,6 +1,9 @@
+/* eslint-disable no-sequences */
+/* eslint-disable no-return-assign */
 const ethers = require('ethers')
 const { toChecksumAddress } = require('ethereumjs-util')
 const fs = require('fs')
+const bytesToHex = require('web3-utils')
 
 function decodeInput(decoderOrAbi, input) {
   const decoder = !decoderOrAbi.interface
@@ -9,7 +12,7 @@ function decodeInput(decoderOrAbi, input) {
 
   const data = safeDecode(decoder, input)
   if (!data || !data.methodName) return null
-  
+
   return data
 }
 
@@ -27,7 +30,7 @@ class InputDataDecoder {
   constructor(prop) {
     this.abi = []
 
-    if (typeof prop === `string`) {
+    if (typeof prop === 'string') {
       // TODO: remove dupe fs reading code here
       this.abi = JSON.parse(fs.readFileSync(prop), 'utf8')
       this.interface = new ethers.utils.Interface(JSON.parse(fs.readFileSync(prop)))
@@ -35,26 +38,25 @@ class InputDataDecoder {
       this.abi = prop
       this.interface = new ethers.utils.Interface(prop)
     } else {
-      throw new TypeError(`Must pass ABI array object or file path to constructor`)
+      throw new TypeError('Must pass ABI array object or file path to constructor')
     }
   }
 
   decodeData(data) {
-
-    //TODO: wrap this all in a try catch for errors
+    // TODO: wrap this all in a try catch for errors
 
     // make tx object needed for some inputs with ethers library -> might be a way to clean this up
-    let tx = {}
+    const tx = {}
     tx.data = data
 
     // get method signature
     const methodId = tx.data.slice(0, 10)
 
     // get the decoded inputs
-    const inputs = this.interface.decodeFunctionData(methodId, tx.data) // same as data.inputs, shows decoded inputs
+    const inputs = this.interface.decodeFunctionData(methodId, tx.data)
 
-    // get the input arguments in satisfying format (and other information - might be able to cut the fat here)
-    const txDesc = this.interface.parseTransaction(tx) // full description of fn and input args -> need to map this!!!
+    // get the input arguments in satisfying format
+    const txDesc = this.interface.parseTransaction(tx)
 
     // clean the input type object due to complex tuple structures
     const types = cleanInputs(txDesc.functionFragment.inputs)
@@ -66,43 +68,42 @@ class InputDataDecoder {
     // here we clean the input to match BN payloads
     const blocknativeParams = cleanToBNStandard(params)
 
-    return  { methodName: txDesc.functionFragment.name, params: blocknativeParams }
+    return { methodName: txDesc.functionFragment.name, params: blocknativeParams }
   }
 }
 
 // Zips inputs to types
-// TODO: USE A REDUCE DUMMY
 function mapTypesToInputs(types, inputs) {
-  let params = []
-  for (let i = 0; i < types.length; i++) {
+  const params = []
+  inputs.forEach((input, i) => {
     if (types[i].type.includes('tuple')) {
-      params.push({ name: types[i].name, type: types[i].type, value: handleTuple(types[i], inputs[i]) })
-      continue
+      params.push({
+        name: types[i].name,
+        type: types[i].type,
+        value: handleTuple(types[i], input),
+      })
+
+      return
     }
-    const parsedValue = parseCallValue(inputs[i], types[i].type)
+    const parsedValue = parseCallValue(input, types[i].type)
     params.push({ name: types[i].name, value: parsedValue })
-  }
+  })
   return params
 }
 
-// TODO: This would be done better with a reduce!
 function handleTuple(types, inputs) {
-  let params = []
+  const params = []
   // Check for nested tuples here, flatten out but keep type
   if (types.type.includes('[]')) {
-    let tempType = types
+    const tempType = types
     tempType.type = tempType.type.slice(0, -2)
-
-    for (let i = 0; i < inputs.length; i++) {
-      params.push(handleTuple(tempType, inputs[i]))
-    }
+    inputs.forEach((input) => { params.push(handleTuple(tempType, input)) })
     return params
   }
-  // Deal with tuple
-  for (let i = 0; i < types.components.length; i++) {
-    const parsedValue = parseCallValue(inputs[i], types.components[i].type)
+  inputs.forEach((input, i) => {
+    const parsedValue = parseCallValue(input, types.components[i].type)
     params.push({ name: types.components[i].name, value: parsedValue })
-  }
+  })
   return params
 }
 
@@ -118,7 +119,7 @@ function parseCallValue(val, type) {
     if (type.includes('bool')) return val
 
     // Sometimes our decoder library does not decode bytes correctly and returns buffers
-    // Here we safegaurd this as to not double decode them.
+    // Here we safe gaurd this as to not double decode them.
     if (type.includes('bytes32[')) {
       return val.map((b) => {
         if (typeof b === 'string') {
@@ -149,11 +150,10 @@ function parseCallValue(val, type) {
       )}', val: '${val}', typeof val: '${typeof val}' }: ${error}`,
     )
   }
-
 }
 
 function cleanInputs(inputs) {
-  // Some funky flatenning of tuple arrays (structures in Solidity)
+  // Some funky flattening of tuple arrays (structures in Solidity)
   const typesToReturn = inputs.reduce((acc, obj, index) => {
     if (obj.type.includes('tuple')) {
       acc[index] = { name: obj.name, type: obj.type, components: cleanTupleTypes(obj.components) }
@@ -167,10 +167,7 @@ function cleanInputs(inputs) {
 }
 
 function cleanTupleTypes(tupleTypes) {
-  // no need to go further into this tuple structure as far as I am aware since we don't have structs of structs yet?
-  return tupleTypes.map(comp => {
-    return { name: comp.name, type: comp.type }
-  })
+  return tupleTypes.map(comp => ({ name: comp.name, type: comp.type }))
 }
 
 function standardiseAddress(ad) {
@@ -179,41 +176,34 @@ function standardiseAddress(ad) {
 }
 
 function cleanToBNStandardNested(arr) {
-  let objParams = {}
   // Check for deeper nesting
   if (Array.isArray(arr[0]) && !arr[0].name) {
-    let arrParams = []
-    for (let p of arr) {
-      arrParams.push(cleanToBNStandardNested(p))
-    }
+    const arrParams = []
+    arr.forEach((p) => { arrParams.push(cleanToBNStandardNested(p)) })
     return arrParams
   }
   // Check for array leaf value
   if (!Array.isArray(arr[0]) && !arr[0].name) {
     return arr
   }
-  // Check for leaf tuple and assign
-  for (let p of arr) {
-    p.name = !p.name ? '' : p.name
-    objParams[p.name] = p.value
-  }
-  return objParams
+
+  return arr.reduce((r, { name, value }) => (r[name] = value, r), {})
 }
 
 function cleanToBNStandard(params) {
-  let cleanParams = {}
-  for (let p of params) {
+  const cleanParams = {}
+  params.forEach((p) => {
     if (Array.isArray(p.value)) {
       p.name = !p.name ? '' : p.name
       cleanParams[p.name] = cleanToBNStandardNested(p.value)
-      continue
+      return
     }
     cleanParams[p.name] = p.value
-  }
-  return cleanParams 
+  })
+  return cleanParams
 }
 
-module.exports = { 
+module.exports = {
   InputDataDecoder,
   decodeInput,
 }

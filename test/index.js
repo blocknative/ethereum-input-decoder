@@ -1,9 +1,9 @@
+/* eslint-disable no-shadow */
 const fs = require('fs')
 const test = require('tape')
-const { InputDataDecoder, decodeInput } = require('../dist/index')
+const { InputDataDecoder, decodeInput } = require('../src/alexDecoder')
 
 test('decoder', (t) => {
-
   // Testing how decoders can be passed in to simulate Liam's ethereum-input-to-object
   t.test('Test multiple ways to create decoder', (t) => {
     t.plan(2)
@@ -14,18 +14,18 @@ test('decoder', (t) => {
     const decoder2 = JSON.parse(fs.readFileSync(`${__dirname}/data/Uniswap_v2_router_2_abi.json`, 'utf8'))
     const result1 = decodeInput(decoder1, data)
     const result2 = decodeInput(decoder2, data)
-    const expectedSwapExactETHForTokens = {                        
-      methodName: "swapExactETHForTokens",
+    const expectedSwapExactETHForTokens = {
+      methodName: 'swapExactETHForTokens',
       params: {
-        amountOutMin: "33674617150280629752981",
+        amountOutMin: '33674617150280629752981',
         path: [
-          "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-          "0x04969cD041C0cafB6AC462Bd65B536A5bDB3A670"
-        ],                  
-        to: "0x8f5550De7D7F47cf0128592fC4A50B6925d65a0F",
-        deadline: "1617249277"                                                                             
-      }                   
-    }  
+          '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+          '0x04969cD041C0cafB6AC462Bd65B536A5bDB3A670',
+        ],
+        to: '0x8f5550De7D7F47cf0128592fC4A50B6925d65a0F',
+        deadline: '1617249277',
+      },
+    }
     t.deepEquals(result1, expectedSwapExactETHForTokens)
     t.deepEquals(result2, expectedSwapExactETHForTokens)
   })
@@ -37,18 +37,18 @@ test('decoder', (t) => {
     const decoder = new InputDataDecoder(`${__dirname}/data/Uniswap_v2_router_2_abi.json`)
     const data = fs.readFileSync(`${__dirname}/data/Uniswap_v2_router_2_input.txt`, 'utf8')
     const result = decoder.decodeData(data)
-    const expectedSwapExactETHForTokens = {                        
-      methodName: "swapExactETHForTokens",
+    const expectedSwapExactETHForTokens = {
+      methodName: 'swapExactETHForTokens',
       params: {
-        amountOutMin: "33674617150280629752981",
+        amountOutMin: '33674617150280629752981',
         path: [
-          "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-          "0x04969cD041C0cafB6AC462Bd65B536A5bDB3A670"
-        ],                  
-        to: "0x8f5550De7D7F47cf0128592fC4A50B6925d65a0F",
-        deadline: "1617249277"                                                                             
-      }                   
-    }  
+          '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+          '0x04969cD041C0cafB6AC462Bd65B536A5bDB3A670',
+        ],
+        to: '0x8f5550De7D7F47cf0128592fC4A50B6925d65a0F',
+        deadline: '1617249277',
+      },
+    }
     t.deepEquals(result, expectedSwapExactETHForTokens)
   })
 
@@ -81,16 +81,16 @@ test('decoder', (t) => {
     const data = fs.readFileSync(`${__dirname}/data/1inch_exchange_v3_unoswap_2.txt`, 'utf8')
     const result = decoder.decodeData(data)
     const expectedUnoswap = {
-      methodName: "unoswap",
+      methodName: 'unoswap',
       params: {
-        srcToken: "0x4fE83213D56308330EC302a8BD641f1d0113A4Cc",
-        amount: "7205316239574000446388",
-        minReturn: "597064711551968836389",
-        "": [
-          "0x00000000000000003b6d034004444d365324134e58104b1d874d00dc68dcea53",
-          "0x80000000000000003b6d0340d84d55532b231dbb305908bc5a10b8c55ba21e5e"
-        ]
-      }
+        srcToken: '0x4fE83213D56308330EC302a8BD641f1d0113A4Cc',
+        amount: '7205316239574000446388',
+        minReturn: '597064711551968836389',
+        '': [
+          '0x00000000000000003b6d034004444d365324134e58104b1d874d00dc68dcea53',
+          '0x80000000000000003b6d0340d84d55532b231dbb305908bc5a10b8c55ba21e5e',
+        ],
+      },
     }
     t.deepEquals(result, expectedUnoswap)
   })
@@ -114,16 +114,16 @@ test('decoder', (t) => {
   t.test('checking Compound: Comptroller', (t) => {
     t.plan(1)
     const decoder = new InputDataDecoder(`${__dirname}/data/Comptroller_abi.json`)
-    data = fs.readFileSync(`${__dirname}/data/Compound_Comptroller_input.txt`, 'utf8')
+    const data = fs.readFileSync(`${__dirname}/data/Compound_Comptroller_input.txt`, 'utf8')
     const result = decoder.decodeData(data)
     const expectedClaimComp = {
-      methodName: "claimComp",
+      methodName: 'claimComp',
       params: {
-        holder: "0xFFe5347961a41778Df7f930B49F61b20a4b82a9e",
+        holder: '0xFFe5347961a41778Df7f930B49F61b20a4b82a9e',
         cTokens: [
-          "0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5"
-        ]
-      }
+          '0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5',
+        ],
+      },
     }
     t.deepEquals(result, expectedClaimComp)
   })
@@ -133,36 +133,36 @@ test('decoder', (t) => {
   t.test('Checking Balancer: Exchange Proxy 2', (t) => {
     t.plan(1)
     const decoder = new InputDataDecoder(`${__dirname}/data/Balancer_Exchange_Proxy_2_abi.json`)
-    data = fs.readFileSync(`${__dirname}/data/Balancer_Exchange_Proxy_2_input.txt`, 'utf8')
+    const data = fs.readFileSync(`${__dirname}/data/Balancer_Exchange_Proxy_2_input.txt`, 'utf8')
     const result = decoder.decodeData(data)
     const expectedMultihopBatchSwapExactIn = {
-      methodName: "multihopBatchSwapExactIn",
+      methodName: 'multihopBatchSwapExactIn',
       params: {
         swapSequences: [
           [
             {
-              pool: "0xC697051d1C6296C24aE3bceF39acA743861D9A81",
-              tokenIn: "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
-              tokenOut: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-              swapAmount: "31670863740000000000",
-              limitReturnAmount: "0",
-              maxPrice: "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+              pool: '0xC697051d1C6296C24aE3bceF39acA743861D9A81',
+              tokenIn: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',
+              tokenOut: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+              swapAmount: '31670863740000000000',
+              limitReturnAmount: '0',
+              maxPrice: '115792089237316195423570985008687907853269984665640564039457584007913129639935',
             },
             {
-              pool: "0x4bcbc51fbaBe5Ed04b4cD93d361674fC3fb519b8",
-              tokenIn: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-              tokenOut: "0x5B09A0371C1DA44A8E24D36Bf5DEb1141a84d875",
-              swapAmount: "6275739454135587377",
-              limitReturnAmount: "0",
-              maxPrice: "115792089237316195423570985008687907853269984665640564039457584007913129639935"
-            }
-          ]
+              pool: '0x4bcbc51fbaBe5Ed04b4cD93d361674fC3fb519b8',
+              tokenIn: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+              tokenOut: '0x5B09A0371C1DA44A8E24D36Bf5DEb1141a84d875',
+              swapAmount: '6275739454135587377',
+              limitReturnAmount: '0',
+              maxPrice: '115792089237316195423570985008687907853269984665640564039457584007913129639935',
+            },
+          ],
         ],
-        tokenIn: "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
-        tokenOut: "0x5B09A0371C1DA44A8E24D36Bf5DEb1141a84d875",
-        totalAmountIn: "31670863740000000000",
-        minTotalAmountOut: "39597173304477611940298"
-      }
+        tokenIn: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',
+        tokenOut: '0x5B09A0371C1DA44A8E24D36Bf5DEb1141a84d875',
+        totalAmountIn: '31670863740000000000',
+        minTotalAmountOut: '39597173304477611940298',
+      },
     }
     t.deepEquals(result, expectedMultihopBatchSwapExactIn)
   })
