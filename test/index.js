@@ -1,8 +1,33 @@
 const fs = require('fs')
 const test = require('tape')
-const InputDataDecoder = require('../index')
+const { InputDataDecoder, decodeInput } = require('../index')
 
 test('decoder', (t) => {
+
+  t.test('Test multiple ways to create decoder', (t) => {
+    t.plan(2)
+    const data = fs.readFileSync(`${__dirname}/data/Uniswap_v2_router_2_input.txt`, 'utf8')
+    // 1: test with premade decoder class
+    const decoder1 = new InputDataDecoder(`${__dirname}/data/Uniswap_v2_router_2_abi.json`)
+    // 2: test with abi object
+    const decoder2 = JSON.parse(fs.readFileSync(`${__dirname}/data/Uniswap_v2_router_2_abi.json`, 'utf8'))
+    const result1 = decodeInput(decoder1, data)
+    const result2 = decodeInput(decoder2, data)
+    const expectedSwapExactETHForTokens = {                        
+      methodName: "swapExactETHForTokens",
+      params: {
+        amountOutMin: "33674617150280629752981",
+        path: [
+          "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "0x04969cD041C0cafB6AC462Bd65B536A5bDB3A670"
+        ],                  
+        to: "0x8f5550De7D7F47cf0128592fC4A50B6925d65a0F",
+        deadline: "1617249277"                                                                             
+      }                   
+    }  
+    t.deepEquals(result1, expectedSwapExactETHForTokens)
+    t.deepEquals(result2, expectedSwapExactETHForTokens)
+  })
 
   // Common case of Uniswap v2 Router 2
   // https://etherscan.io/tx/0x46ebd2ab9df32298b791ef54b9a82bf64c13d23c839998351a97a9663a79e7dd

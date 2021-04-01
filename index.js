@@ -2,13 +2,37 @@ const ethers = require('ethers')
 const { toChecksumAddress } = require('ethereumjs-util')
 const fs = require('fs')
 
+function decodeInput(decoderOrAbi, input) {
+  console.log(!decoderOrAbi.interface)
+  const decoder = !decoderOrAbi.interface
+    ? new InputDataDecoder(decoderOrAbi) // ABI was passed
+    : decoderOrAbi // Decoder was passed
+  
+
+
+  const data = safeDecode(decoder, input)
+  if (!data || !data.methodName) return null
+  
+  return data
+}
+
+function safeDecode(decoder, input) {
+  let decodedInput = { method: null }
+  try {
+    decodedInput = decoder.decodeData(input)
+  } catch (error) {
+    // Input was invalid, swallow error
+  }
+  return decodedInput
+}
+
 class InputDataDecoder {
   constructor(prop) {
     this.abi = []
 
     if (typeof prop === `string`) {
       // TODO: remove dupe fs reading code here
-      this.abi = JSON.parse(fs.readFileSync(prop))
+      this.abi = JSON.parse(fs.readFileSync(prop), 'utf8')
       this.interface = new ethers.utils.Interface(JSON.parse(fs.readFileSync(prop)))
     } else if (prop instanceof Object) {
       this.abi = prop
@@ -192,4 +216,7 @@ function cleanToBNStandard(params) {
   return cleanParams 
 }
 
-module.exports = InputDataDecoder
+module.exports = { 
+  InputDataDecoder,
+  decodeInput,
+}
