@@ -4,6 +4,7 @@ const { InputDataDecoder, decodeInput } = require('../index')
 
 test('decoder', (t) => {
 
+  // Testing how decoders can be passed in to simulate Liam's ethereum-input-to-object
   t.test('Test multiple ways to create decoder', (t) => {
     t.plan(2)
     const data = fs.readFileSync(`${__dirname}/data/Uniswap_v2_router_2_input.txt`, 'utf8')
@@ -94,12 +95,13 @@ test('decoder', (t) => {
     t.deepEquals(result, expectedUnoswap)
   })
 
+  // This used to have trouble decoding, Eth Asset, WETH in the internals
+  // The important part is that the data which is type 'bytes' isn't double decoded
+  // https://etherscan.io/tx/0x3693b42398beaf1e367cfe004b6606697764bc99ab1d5c01c300b760034be46c
   t.test('Checking 1inch v2 swap for bytes type', (t) => {
     t.plan(1)
     const decoder = new InputDataDecoder(`${__dirname}/data/1inch_exchange_v2_abi.json`)
-    // This used to have trouble decoding, Eth Asset, WETH in the internals
-    // The important part is that the data which is type 'bytes' isn't double decoded
-    // https://etherscan.io/tx/0x3693b42398beaf1e367cfe004b6606697764bc99ab1d5c01c300b760034be46c
+
     const data = fs.readFileSync(`${__dirname}/data/1inch_exchange_v2_assetEth_withWeth.txt`, 'utf8')
     const result = decoder.decodeData(data)
     const expectedSwap = fs.readFileSync(`${__dirname}/data/1inch_v2_expectedSwap.json`)
@@ -107,6 +109,8 @@ test('decoder', (t) => {
     t.deepEquals(result, JSON.parse(expectedSwap))
   })
 
+  // A tricky one since Etherscan provides the wrong abi
+  // This abi will give warnings of duplicate definitions
   t.test('checking Compound: Comptroller', (t) => {
     t.plan(1)
     const decoder = new InputDataDecoder(`${__dirname}/data/Comptroller_abi.json`)
@@ -163,10 +167,10 @@ test('decoder', (t) => {
     t.deepEquals(result, expectedMultihopBatchSwapExactIn)
   })
 
+  // batchFillOrders which has a bytes[] type, to check we are not double decoding
   t.test('Checking 0x_v3 for bytes[] type', (t) => {
     t.plan(1)
     const decoder = new InputDataDecoder(`${__dirname}/data/0x_v3_abi.json`)
-    // batchFillOrders which has a bytes[] type, to check we are not double decoding
     const data = fs.readFileSync(`${__dirname}/data/0x_v3_batchFillOrders.txt`, 'utf8')
     const result = decoder.decodeData(data)
     const expectedBatchFillOrders = {

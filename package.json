@@ -1,6 +1,6 @@
 {
   "name": "alexdecoder",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An attempt at making a custom decoder for BN payloads using ethers v5",
   "main": "index.js",
   "scripts": {

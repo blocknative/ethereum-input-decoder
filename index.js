@@ -7,8 +7,6 @@ function decodeInput(decoderOrAbi, input) {
   const decoder = !decoderOrAbi.interface
     ? new InputDataDecoder(decoderOrAbi) // ABI was passed
     : decoderOrAbi // Decoder was passed
-  
-
 
   const data = safeDecode(decoder, input)
   if (!data || !data.methodName) return null
