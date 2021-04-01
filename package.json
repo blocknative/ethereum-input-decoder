@@ -2,22 +2,28 @@
   "name": "alexdecoder",
   "version": "0.1.1",
   "description": "An attempt at making a custom decoder for BN payloads using ethers v5",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "tape ./test/index.js",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "build": "rollup -c"
   },
   "author": "Alexander Campbell",
   "license": "ISC",
   "devDependencies": {
     "eslint": "^5.3.0",
     "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.17.3"
+    "eslint-plugin-import": "^2.17.3",
+    "rollup": "^2.19.0"
   },
   "dependencies": {
     "ethers": "^5.0.32",
     "tape": "^4.6.3",
     "web3-utils": "^1.2.9",
     "ethereumjs-util": "^7.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexcampbelling/alexDecoder.git"
   }
 }

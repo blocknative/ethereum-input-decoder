@@ -3,7 +3,6 @@ const { toChecksumAddress } = require('ethereumjs-util')
 const fs = require('fs')
 
 function decodeInput(decoderOrAbi, input) {
-  console.log(!decoderOrAbi.interface)
   const decoder = !decoderOrAbi.interface
     ? new InputDataDecoder(decoderOrAbi) // ABI was passed
     : decoderOrAbi // Decoder was passed

@@ -1,6 +1,6 @@
 const fs = require('fs')
 const test = require('tape')
-const { InputDataDecoder, decodeInput } = require('../index')
+const { InputDataDecoder, decodeInput } = require('../dist/index')
 
 test('decoder', (t) => {
 
