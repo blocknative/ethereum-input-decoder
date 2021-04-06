@@ -1,7 +1,7 @@
 /* eslint-disable no-shadow */
 const fs = require('fs')
 const test = require('tape')
-const { InputDataDecoder, decodeInput } = require('../src/alexDecoder')
+const { InputDataDecoder, decodeInput } = require('../src')
 
 test('decoder', (t) => {
   // Testing how decoders can be passed in to simulate Liam's ethereum-input-to-object

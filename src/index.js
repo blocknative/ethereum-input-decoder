@@ -45,8 +45,6 @@ class InputDataDecoder {
   }
 
   decodeData(data) {
-    // TODO: wrap this all in a try catch for errors
-
     // make tx object needed for some inputs with ethers library -> might be a way to clean this up
     const tx = {}
     tx.data = data
@@ -67,9 +65,9 @@ class InputDataDecoder {
     // return early if solidity types
     if (this.format === 'solidityTypes') { return params }
 
-    // here we clean the input to match BN payloads
-    const blocknativeParams = transformToJSObject(params)
-    return { methodName: verboseDecode.functionFragment.name, params: blocknativeParams }
+    // here we clean the input to not include types, and improve readability
+    const jsObjectParams = transformToJSObject(params)
+    return { methodName: verboseDecode.functionFragment.name, params: jsObjectParams }
   }
 }
 
@@ -104,7 +102,11 @@ function handleTuple(types, inputs) {
   }
   inputs.forEach((input, i) => {
     const parsedValue = parseCallValue(input, types.components[i].type)
-    params.push({ name: types.components[i].name, type: types.components[i].type, value: parsedValue })
+    params.push({
+      name: types.components[i].name,
+      type: types.components[i].type,
+      value: parsedValue,
+    })
   })
   return params
 }
@@ -121,7 +123,8 @@ function parseCallValue(val, type) {
     if (type.includes('bool')) return val
 
     // Sometimes our decoder library does not decode bytes correctly and returns buffers
-    // Here we safe gaurd this as to not double decode them.
+    // Here we safe guard this as to not double decode them.
+    // TODO: check for if ethers ever messes up the bytes decoding!
     if (type.includes('bytes32[')) {
       return val.map((b) => {
         if (typeof b === 'string') {
