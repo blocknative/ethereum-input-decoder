@@ -9,20 +9,10 @@ function decodeInput(decoderOrAbi, input) {
     ? new InputDataDecoder(decoderOrAbi) // ABI was passed
     : decoderOrAbi // Decoder was passed
 
-  const data = safeDecode(decoder, input)
+  const data = decoder.decodeData(input)
   if (!data || !data.methodName) return null
 
   return data
-}
-
-function safeDecode(decoder, input) {
-  let decodedInput = { method: null }
-  try {
-    decodedInput = decoder.decodeData(input)
-  } catch (error) {
-    // Input was invalid, swallow error
-  }
-  return decodedInput
 }
 
 class InputDataDecoder {
@@ -45,29 +35,34 @@ class InputDataDecoder {
   }
 
   decodeData(data) {
-    // make tx object needed for some inputs with ethers library -> might be a way to clean this up
-    const tx = {}
-    tx.data = data
+    try {
+      // make tx object needed for some inputs with ethers library
+      const tx = {}
+      tx.data = data
 
-    // get verbose decoding / function fragment
-    const verboseDecode = this.interface.parseTransaction(tx)
+      // get verbose decoding / function fragment
+      const verboseDecode = this.interface.parseTransaction(tx)
 
-    // returns the parameters for the input
-    const rawParams = verboseDecode.args
+      // returns the parameters for the input
+      const rawParams = verboseDecode.args
 
-    // reduce the verbose types from function fragment to slim format
-    const types = transformVerboseTypes(verboseDecode.functionFragment.inputs)
+      // reduce the verbose types from function fragment to slim format
+      const types = transformVerboseTypes(verboseDecode.functionFragment.inputs)
 
-    // map our decoded input arguments to their types
-    // this form may be useful to other people as it does not decode the inputs, and keeps the types
-    const params = mapTypesToInputs(types, rawParams)
+      // map our decoded input arguments to their types
+      // TODO: remove parsing of value types from this function, into another for clarity
+      const params = mapTypesToInputs(types, rawParams)
 
-    // return early if solidity types
-    if (this.format === 'solidityTypes') { return params }
+      // return early if solidity types
+      if (this.format === 'solidityTypes') return { methodName: verboseDecode.functionFragment.name, params }
 
-    // here we clean the input to not include types, and improve readability
-    const jsObjectParams = transformToJSObject(params)
-    return { methodName: verboseDecode.functionFragment.name, params: jsObjectParams }
+      // here we clean the input to not include types, and improve readability
+      const jsObjectParams = transformToJSObject(params)
+      return { methodName: verboseDecode.functionFragment.name, params: jsObjectParams }
+    } catch (error) {
+      // Eat all errors currently, can debug here once we find failed decodings
+    }
+    return null
   }
 }
 

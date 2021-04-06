@@ -26,5 +26,9 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/blocknative/ethereum-contract-decoder"
+  },
+  "homepage": "https://github.com/blocknative/ethereum-contract-decoder#readme",
+  "bugs": {
+    "url": "https://github.com/blocknative/ethereum-contract-decoder/issues"
   }
 }

@@ -134,7 +134,7 @@ test('decoder', (t) => {
     t.plan(1)
     const decoder = new InputDataDecoder(`${__dirname}/data/Balancer_Exchange_Proxy_2_abi.json`)
     const data = fs.readFileSync(`${__dirname}/data/Balancer_Exchange_Proxy_2_input.txt`, 'utf8')
-    const result = decoder.decodeData(data, 'jsObject')
+    const result = decoder.decodeData(data)
     const expectedMultihopBatchSwapExactIn = {
       methodName: 'multihopBatchSwapExactIn',
       params: {
@@ -197,5 +197,56 @@ test('decoder', (t) => {
       },
     }
     t.deepEquals(result, expectedBatchFillOrders)
+  })
+
+  // Here we test an erc20 token transfer in both jsObject output format and solidityTypes format
+  t.test('testing an erc20 token transfer', (t) => {
+    t.plan(2)
+
+    const data = '0xa9059cbb0000000000000000000000005a1cb5a88988ca4fef229935db834a6781e873cb0000000000000000000000000000000000000000000000000de0b6b3a7640000'
+
+    // jsObject format
+    const decoder1 = new InputDataDecoder(`${__dirname}/data/erc20_abi.json`)
+    const result1 = decoder1.decodeData(data)
+    const expectedTransfer1 = {
+      methodName: 'transfer',
+      params: {
+        _to: '0x5A1Cb5A88988cA4FEF229935db834A6781e873cB',
+        _value: '1000000000000000000',
+      },
+    }
+
+    // solidityTypes format
+    const decoder2 = new InputDataDecoder(`${__dirname}/data/erc20_abi.json`, 'solidityTypes')
+    const result2 = decoder2.decodeData(data)
+    const expectedTransfer2 = {
+      methodName: 'transfer',
+      params: [
+        {
+          name: '_to',
+          type: 'address',
+          value: '0x5A1Cb5A88988cA4FEF229935db834A6781e873cB',
+        },
+        {
+          name: '_value',
+          type: 'uint256',
+          value: '1000000000000000000',
+        },
+      ],
+    }
+
+    t.deepEquals(result1, expectedTransfer1)
+    t.deepEquals(result2, expectedTransfer2)
+  })
+
+  // Here we ensure decoding returns `null` on rubbish input
+  t.test('Testing a failing input', (t) => {
+    t.plan(1)
+
+    const decoder = new InputDataDecoder(`${__dirname}/data/0x_v3_abi.json`)
+    const failingData = '0xbitconnect'
+    const result = decoder.decodeData(failingData)
+
+    t.equals(result, null)
   })
 })
