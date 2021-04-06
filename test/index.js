@@ -134,7 +134,7 @@ test('decoder', (t) => {
     t.plan(1)
     const decoder = new InputDataDecoder(`${__dirname}/data/Balancer_Exchange_Proxy_2_abi.json`)
     const data = fs.readFileSync(`${__dirname}/data/Balancer_Exchange_Proxy_2_input.txt`, 'utf8')
-    const result = decoder.decodeData(data)
+    const result = decoder.decodeData(data, 'jsObject')
     const expectedMultihopBatchSwapExactIn = {
       methodName: 'multihopBatchSwapExactIn',
       params: {

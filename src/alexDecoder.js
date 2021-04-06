@@ -1,5 +1,4 @@
-/* eslint-disable no-sequences */
-/* eslint-disable no-return-assign */
+
 const ethers = require('ethers')
 const { toChecksumAddress } = require('ethereumjs-util')
 const fs = require('fs')
@@ -27,8 +26,11 @@ function safeDecode(decoder, input) {
 }
 
 class InputDataDecoder {
-  constructor(prop) {
+  constructor(prop, format = 'jsObject') {
     this.abi = []
+    // check format type
+    // TODO: use ow to check against a set
+    this.format = format
 
     if (typeof prop === 'string') {
       // TODO: remove dupe fs reading code here
@@ -49,26 +51,25 @@ class InputDataDecoder {
     const tx = {}
     tx.data = data
 
-    // get method signature
-    const methodId = tx.data.slice(0, 10)
+    // get verbose decoding / function fragment
+    const verboseDecode = this.interface.parseTransaction(tx)
 
-    // get the decoded inputs
-    const inputs = this.interface.decodeFunctionData(methodId, tx.data)
+    // returns the parameters for the input
+    const rawParams = verboseDecode.args
 
-    // get the input arguments in satisfying format
-    const txDesc = this.interface.parseTransaction(tx)
-
-    // clean the input type object due to complex tuple structures
-    const types = cleanInputs(txDesc.functionFragment.inputs)
+    // reduce the verbose types from function fragment to slim format
+    const types = transformVerboseTypes(verboseDecode.functionFragment.inputs)
 
     // map our decoded input arguments to their types
     // this form may be useful to other people as it does not decode the inputs, and keeps the types
-    const params = mapTypesToInputs(types, inputs)
+    const params = mapTypesToInputs(types, rawParams)
+
+    // return early if solidity types
+    if (this.format === 'solidityTypes') { return params }
 
     // here we clean the input to match BN payloads
-    const blocknativeParams = cleanToBNStandard(params)
-
-    return { methodName: txDesc.functionFragment.name, params: blocknativeParams }
+    const blocknativeParams = transformToJSObject(params)
+    return { methodName: verboseDecode.functionFragment.name, params: blocknativeParams }
   }
 }
 
@@ -86,7 +87,7 @@ function mapTypesToInputs(types, inputs) {
       return
     }
     const parsedValue = parseCallValue(input, types[i].type)
-    params.push({ name: types[i].name, value: parsedValue })
+    params.push({ name: types[i].name, type: types[i].type, value: parsedValue })
   })
   return params
 }
@@ -94,6 +95,7 @@ function mapTypesToInputs(types, inputs) {
 function handleTuple(types, inputs) {
   const params = []
   // Check for nested tuples here, flatten out but keep type
+  // TODO: add more descriptive comment of what's going on here
   if (types.type.includes('[]')) {
     const tempType = types
     tempType.type = tempType.type.slice(0, -2)
@@ -102,7 +104,7 @@ function handleTuple(types, inputs) {
   }
   inputs.forEach((input, i) => {
     const parsedValue = parseCallValue(input, types.components[i].type)
-    params.push({ name: types.components[i].name, value: parsedValue })
+    params.push({ name: types.components[i].name, type: types.components[i].type, value: parsedValue })
   })
   return params
 }
@@ -152,7 +154,7 @@ function parseCallValue(val, type) {
   }
 }
 
-function cleanInputs(inputs) {
+function transformVerboseTypes(inputs) {
   // Some funky flattening of tuple arrays (structures in Solidity)
   const typesToReturn = inputs.reduce((acc, obj, index) => {
     if (obj.type.includes('tuple')) {
@@ -175,11 +177,11 @@ function standardiseAddress(ad) {
   return toChecksumAddress(ad)
 }
 
-function cleanToBNStandardNested(arr) {
+function transformToJSObjectNested(arr) {
   // Check for deeper nesting
   if (Array.isArray(arr[0]) && !arr[0].name) {
     const arrParams = []
-    arr.forEach((p) => { arrParams.push(cleanToBNStandardNested(p)) })
+    arr.forEach((p) => { arrParams.push(transformToJSObjectNested(p)) })
     return arrParams
   }
   // Check for array leaf value
@@ -187,15 +189,18 @@ function cleanToBNStandardNested(arr) {
     return arr
   }
 
-  return arr.reduce((r, { name, value }) => (r[name] = value, r), {})
+  return arr.reduce((r, { name, value }) => {
+    r[name] = value
+    return r
+  }, {})
 }
 
-function cleanToBNStandard(params) {
+function transformToJSObject(params) {
   const cleanParams = {}
   params.forEach((p) => {
     if (Array.isArray(p.value)) {
       p.name = !p.name ? '' : p.name
-      cleanParams[p.name] = cleanToBNStandardNested(p.value)
+      cleanParams[p.name] = transformToJSObjectNested(p.value)
       return
     }
     cleanParams[p.name] = p.value
