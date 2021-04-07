@@ -3,6 +3,10 @@ const ethers = require('ethers')
 const { toChecksumAddress } = require('ethereumjs-util')
 const fs = require('fs')
 const bytesToHex = require('web3-utils')
+const { default: ow } = require('ow')
+
+const VALID_FORMATS = ['jsObject', 'solidityTypes']
+const formatPredicate = ow.string.is(s => VALID_FORMATS.includes(s) || `Expected valid 'format' (${VALID_FORMATS.join(', ')}) but got ${s}`)
 
 function decodeInput(decoderOrAbi, input) {
   const decoder = !decoderOrAbi.interface
@@ -19,7 +23,11 @@ class InputDataDecoder {
   constructor(prop, format = 'jsObject') {
     this.abi = []
     // check format type
-    // TODO: use ow to check against a set
+    try {
+      ow(format, formatPredicate)
+    } catch (e) {
+      console.log('WARN: Invalid format, defaulting to \'jsObject\' format')
+    }
     this.format = format
 
     if (typeof prop === 'string') {
@@ -88,7 +96,7 @@ function mapTypesToInputs(types, inputs) {
 function handleTuple(types, inputs) {
   const params = []
   // Check for nested tuples here, flatten out but keep type
-  // TODO: add more descriptive comment of what's going on here
+  // This is assuming children types of nested tuple arrays are the same as parent
   if (types.type.includes('[]')) {
     const tempType = types
     tempType.type = tempType.type.slice(0, -2)
@@ -116,32 +124,9 @@ function parseCallValue(val, type) {
     if (type.includes('int8[')) return val.map(v => v.toString())
     if (type.includes('int')) return val.toString()
     if (type.includes('bool')) return val
-
-    // Sometimes our decoder library does not decode bytes correctly and returns buffers
-    // Here we safe guard this as to not double decode them.
-    // TODO: check for if ethers ever messes up the bytes decoding!
-    if (type.includes('bytes32[')) {
-      return val.map((b) => {
-        if (typeof b === 'string') {
-          return b
-        }
-        return bytesToHex(b)
-      })
-    }
-    if (type.includes('bytes[')) {
-      return val.map((b) => {
-        if (typeof b === 'string') {
-          return b
-        }
-        return bytesToHex(b)
-      })
-    }
-    if (type.includes('bytes')) {
-      if (typeof val === 'string') {
-        return val
-      }
-      return bytesToHex(val)
-    }
+    if (type.includes('bytes32[')) return val
+    if (type.includes('bytes[')) return val
+    if (type.includes('bytes')) return val
     throw Error(`Unknown type ${type}`)
   } catch (error) {
     throw Error(
