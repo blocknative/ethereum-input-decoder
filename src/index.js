@@ -2,7 +2,6 @@
 const ethers = require('ethers')
 const { toChecksumAddress } = require('ethereumjs-util')
 const fs = require('fs')
-const bytesToHex = require('web3-utils')
 const { default: ow } = require('ow')
 
 const VALID_FORMATS = ['jsObject', 'solidityTypes']
