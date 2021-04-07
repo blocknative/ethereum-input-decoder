@@ -1,5 +1,5 @@
 {
-  "name": "ethereum-contract-decoder",
+  "name": "ethereum-input-decoder",
   "version": "0.1.2",
   "description": "Decodes inputs for a given abi",
   "main": "src/index.js",
@@ -25,10 +25,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/blocknative/ethereum-contract-decoder"
+    "url": "git+https://github.com/blocknative/ethereum-input-decoder"
   },
-  "homepage": "https://github.com/blocknative/ethereum-contract-decoder#readme",
+  "homepage": "https://github.com/blocknative/ethereum-input-decoder#readme",
   "bugs": {
-    "url": "https://github.com/blocknative/ethereum-contract-decoder/issues"
+    "url": "https://github.com/blocknative/ethereum-input-decoder/issues"
   }
 }
