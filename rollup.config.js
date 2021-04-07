@@ -8,10 +8,12 @@ export default {
     {
       format: 'esm',
       file: pkg.module,
+      exports: 'default',
     },
     {
       format: 'cjs',
       file: pkg.main,
+      exports: 'default',
     },
   ],
   external: ['ethereumjs-util', 'ethers', 'fs', 'ow'],
