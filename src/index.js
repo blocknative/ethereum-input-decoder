@@ -22,6 +22,7 @@ function decodeInput(decoderOrAbi, input) {
 class InputDataDecoder {
   constructor(prop, format = 'jsObject') {
     this.abi = []
+
     // check format type
     try {
       ow(format, formatPredicate)
@@ -31,9 +32,9 @@ class InputDataDecoder {
     this.format = format
 
     if (typeof prop === 'string') {
-      // TODO: remove dupe fs reading code here
-      this.abi = JSON.parse(fs.readFileSync(prop), 'utf8')
-      this.interface = new ethers.utils.Interface(JSON.parse(fs.readFileSync(prop)))
+      prop = fs.readFileSync(prop)
+      this.abi = JSON.parse(prop, 'utf8')
+      this.interface = new ethers.utils.Interface(JSON.parse(prop))
     } else if (prop instanceof Object) {
       this.abi = prop
       this.interface = new ethers.utils.Interface(prop)
