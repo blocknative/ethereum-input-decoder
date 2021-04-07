@@ -18,10 +18,10 @@
     "rollup": "^2.19.0"
   },
   "dependencies": {
-    "ethers": "^5.0.32",
-    "tape": "^4.6.3",
     "ethereumjs-util": "^7.0.2",
-    "ow": "^0.23.0"
+    "ethers": "^5.0.32",
+    "ow": "^0.23.0",
+    "tape": "^4.6.3"
   },
   "repository": {
     "type": "git",
