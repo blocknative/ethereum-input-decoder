@@ -1,4 +1,4 @@
-# ethereum-contract-decoder
+# ethereum-input-decoder
 
 Decodes an Ethereum input data hex string into a developer friendly JavaScript object. Optionally can be translated into an object which includes Solidity types.
 
@@ -8,7 +8,7 @@ This package is in alpha, use at your own risk!
 
 ## Aim
 
-The goal of ethereum-contract-decoder is to facilitate dead-simple conversion of a transaction input into a JavaScript native, serializable object.
+The goal of ethereum-input-decoder is to facilitate dead-simple conversion of a transaction input into a JavaScript native, serializable object.
 
 ## Usage
 
@@ -18,7 +18,7 @@ Here we create an instance of a decoder using a given ABI, to which we can decod
 We are also able to choose the output format for decoding in this instance.
 
 ```javascript
-import InputDataDecoder = from 'ethereum-contract-decoder'
+import InputDataDecoder = from 'ethereum-input-decoder'
 const erc20Abi = [{ ... }]
 const erc20Decoder = new InputDataDecoder(erc20Abi)
 const transferInput = '0xa9059cb000...'
@@ -64,10 +64,11 @@ console.log(result)
 ### Passing both the ABI and the input together
 
 Here we pass `decodeInput` both an ABI and an input to receive the decoded output in 'jsObject' format.
-This creates the decoder instance each call, good for a single use, but will be inefficient long term.
+This creates the decoder instance each call, it would be recommended to make a decoder instance for each contract
+for multiple calls.
 
 ```javascript
-import decodeInput from 'ethereum-contract-decoder'
+import decodeInput from 'ethereum-input-decoder'
 const erc20Abi = [{ ... }] // this may be an ABI object or an InputDataDecoder instance as above
 const transferInput = '0xa9059cb000...'
 const result = decodeInput(erc20Abi, transferInput)
@@ -78,7 +79,7 @@ const result = decodeInput(erc20Abi, transferInput)
 If the input does not match the ABI, both `decodeInput` and `InputDataDecoder.decodeData()` returns `null`
 
 ```javascript
-import decodeInput from 'ethereum-contract-decoder'
+import decodeInput from 'ethereum-input-decoder'
 const erc20Abi = [{ ... }]
 const failingData = '0xbitconnect'
 const result = decoder.decodeData(failingData)
@@ -93,7 +94,7 @@ null
 When ES6 imports are not available, you may use `require`
 
 ```javascript
-const inputToObject = require('ethereum-input-to-object')
+const inputToObject = require('ethereum-input-decoder')
 ```
 
 ### Supported types
