@@ -21,22 +21,20 @@ function decodeInput(decoderOrAbi, input) {
 
 class InputDataDecoder {
   constructor(prop, format = 'jsObject') {
-    this.abi = [];
-
     // check format type
     try {
       ow(format, formatPredicate);
     } catch (e) {
       console.log('WARN: Invalid format, defaulting to \'jsObject\' format');
     }
+
     this.format = format;
 
+    // create ethers interface for given abi
     if (typeof prop === 'string') {
       prop = fs.readFileSync(prop);
-      this.abi = JSON.parse(prop, 'utf8');
       this.interface = new ethers.utils.Interface(JSON.parse(prop));
     } else if (prop instanceof Object) {
-      this.abi = prop;
       this.interface = new ethers.utils.Interface(prop);
     } else {
       throw new TypeError('Must pass ABI array object or file path to constructor')

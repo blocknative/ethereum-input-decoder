@@ -249,4 +249,38 @@ test('decoder', (t) => {
 
     t.equals(result, null)
   })
+
+  // testing input types to creating decoder classes
+  t.test('Testing decoder created by abi object', (t) => {
+    t.plan(1)
+
+    const abi = JSON.parse(fs.readFileSync(`${__dirname}/data/0x_v3_abi.json`))
+    const decoder = new InputDataDecoder(abi)
+    const data = fs.readFileSync(`${__dirname}/data/0x_v3_batchFillOrders.txt`, 'utf8')
+    const result = decoder.decodeData(data)
+    const expectedBatchFillOrders = {
+      methodName: 'batchFillOrders',
+      params: {
+        orders: [{
+          makerAddress: '0x75ea4d5a32370f974D40b404E4cE0E00C1554979',
+          takerAddress: '0x0000000000000000000000000000000000000000',
+          feeRecipientAddress: '0x1000000000000000000000000000000000000011',
+          senderAddress: '0x0000000000000000000000000000000000000000',
+          makerAssetAmount: '7808845788',
+          takerAssetAmount: '1218396496',
+          makerFee: '0',
+          takerFee: '0',
+          expirationTimeSeconds: '1610851745',
+          salt: '935753695886941056',
+          makerAssetData: '0xf47261b000000000000000000000000077d7e314f82e49a4faff5cc1d2ed0bc7a7c1b1f0',
+          takerAssetData: '0xf47261b0000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+          makerFeeAssetData: '0x',
+          takerFeeAssetData: '0x',
+        }],
+        takerAssetFillAmounts: ['15602774'],
+        signatures: ['0x1b54c660e791da4c5d11f5f82993040ffc11d68c81364312eca3729ebb97fcaea731b7ec5121978e80a3f88c9134687c3d1a551414b11e0d75ab8919ef15759e3d02'],
+      },
+    }
+    t.deepEquals(result, expectedBatchFillOrders)
+  })
 })
