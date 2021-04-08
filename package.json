@@ -1,11 +1,11 @@
 {
   "name": "ethereum-input-decoder",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Decodes inputs for a given abi",
   "main": "dist/ethereum-input-decoder.js",
   "module": "dist/ethereum-input-decoder.esm.js",
   "scripts": {
-    "test": "tape ./test/index.js",
+    "test": "npm run build && tape ./test/index.js",
     "lint": "eslint .",
     "build": "rollup -c"
   },
