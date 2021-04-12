@@ -83,7 +83,6 @@ function mapTypesToInputs(types, inputs) {
         type: types[i].type,
         value: handleTuple(types[i], input),
       });
-
       return
     }
     const parsedValue = parseCallValue(input, types[i].type);
@@ -97,19 +96,22 @@ function handleTuple(types, inputs) {
   // Check for nested tuples here, flatten out but keep type
   // This is assuming children types of nested tuple arrays are the same as parent
   if (types.type.includes('[]')) {
-    const tempType = types;
+    const tempType = Object.assign({}, types);
     tempType.type = tempType.type.slice(0, -2);
-    inputs.forEach((input) => { params.push(handleTuple(tempType, input)); });
-    return params
-  }
-  inputs.forEach((input, i) => {
-    const parsedValue = parseCallValue(input, types.components[i].type);
-    params.push({
-      name: types.components[i].name,
-      type: types.components[i].type,
-      value: parsedValue,
+    inputs.forEach((input) => {
+      params.push(handleTuple(tempType, input));
     });
-  });
+  } else {
+    // console.log('Base -> mapping now')
+    inputs.forEach((input, i) => {
+      const parsedValue = parseCallValue(input, types.components[i].type);
+      params.push({
+        name: types.components[i].name,
+        type: types.components[i].type,
+        value: parsedValue,
+      });
+    });
+  }
   return params
 }
 

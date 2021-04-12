@@ -283,4 +283,56 @@ test('decoder', (t) => {
     }
     t.deepEquals(result, expectedBatchFillOrders)
   })
+
+  // Checking for complex tuple array structures
+  t.test('Testing nested tuple array types of Balancer Exchange Proxy 2', (t) => {
+    t.plan(1)
+
+    const decoder = new InputDataDecoder(`${__dirname}/data/Balancer_Exchange_Proxy_2_abi.json`)
+    const data = fs.readFileSync(`${__dirname}/data/Balancer_Exchange_Proxy_2_input_2.txt`, 'utf8')
+    const result = decoder.decodeData(data)
+
+    const expectedMultihopBatchSwapExactIn = {
+      methodName: 'multihopBatchSwapExactIn',
+      params: {
+        swapSequences: [
+          [
+            {
+              pool: '0xC16BbBe540e6595967035F3a505477E26a38C0c5',
+              tokenIn: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+              tokenOut: '0x68037790A0229e9Ce6EaA8A99ea92964106C4703',
+              swapAmount: '16075018371016512092',
+              limitReturnAmount: '0',
+              maxPrice: '115792089237316195423570985008687907853269984665640564039457584007913129639935',
+            },
+          ],
+          [
+            {
+              pool: '0x8a649274E4d777FFC6851F13d23A86BBFA2f2Fbf',
+              tokenIn: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+              tokenOut: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+              swapAmount: '12924981628983487908',
+              limitReturnAmount: '0',
+              maxPrice: '115792089237316195423570985008687907853269984665640564039457584007913129639935',
+            },
+            {
+              pool: '0xeA735B9894E2Ce229fd297B31B4F2469ca37aAa4',
+              tokenIn: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+              tokenOut: '0x68037790A0229e9Ce6EaA8A99ea92964106C4703',
+              swapAmount: '27622977920',
+              limitReturnAmount: '0',
+              maxPrice: '115792089237316195423570985008687907853269984665640564039457584007913129639935',
+            },
+          ],
+        ],
+        tokenIn: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+        tokenOut: '0x68037790A0229e9Ce6EaA8A99ea92964106C4703',
+        totalAmountIn: '29000000000000000000',
+        minTotalAmountOut: '51941272581094527363184',
+      },
+    }
+
+
+    t.deepEquals(result, expectedMultihopBatchSwapExactIn)
+  })
 })

@@ -1,6 +1,6 @@
 {
   "name": "ethereum-input-decoder",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Decodes inputs for a given abi",
   "main": "dist/ethereum-input-decoder.js",
   "module": "dist/ethereum-input-decoder.esm.js",
