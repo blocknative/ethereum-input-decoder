@@ -1,32 +1,15 @@
-import ethers from 'ethers';
-import ethereumjsUtil from 'ethereumjs-util';
-import fs from 'fs';
-import ow from 'ow';
-
-function unwrapExports (x) {
-	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
-}
-
-function createCommonjsModule(fn, basedir, module) {
-	return module = {
-	  path: basedir,
-	  exports: {},
-	  require: function (path, base) {
-      return commonjsRequire(path, (base === undefined || base === null) ? module.path : base);
-    }
-	}, fn(module, module.exports), module.exports;
-}
-
-function commonjsRequire () {
-	throw new Error('Dynamic requires are not currently supported by @rollup/plugin-commonjs');
-}
-
-var src = createCommonjsModule(function (module, exports) {
+"use strict";
 exports.__esModule = true;
-
-var toChecksumAddress = ethereumjsUtil.toChecksumAddress;
-
-ow["default"];
+var ethers = require('ethers');
+var toChecksumAddress = require('ethereumjs-util').toChecksumAddress;
+var fs = require('fs');
+var ow = require('ow')["default"];
+var VALID_FORMATS = ['jsObject', 'solidityTypes'];
+// const formatPredicate = ow.is(s => VALID_FORMATS.includes(s) || `Expected valid 'format' (${VALID_FORMATS.join(', ')}) but got ${s}`)
+var formatPredicate = function (input) {
+    if (VALID_FORMATS.includes(input))
+        return true;
+};
 function decodeInput(decoderOrAbi, input) {
     var decoder = !decoderOrAbi.interface
         ? new InputDataDecoder(decoderOrAbi) // ABI was passed
@@ -39,6 +22,12 @@ function decodeInput(decoderOrAbi, input) {
 var InputDataDecoder = /** @class */ (function () {
     function InputDataDecoder(prop, format) {
         if (format === void 0) { format = 'jsObject'; }
+        try {
+            ow(format, formatPredicate);
+        }
+        catch (e) {
+            console.log('WARN: Invalid format, defaulting to \'jsObject\' format');
+        }
         this.format = format;
         // create ethers interface for given abi
         if (typeof prop === 'string') {
@@ -207,8 +196,3 @@ exports["default"] = {
     InputDataDecoder: InputDataDecoder,
     decodeInput: decodeInput
 };
-});
-
-var index = /*@__PURE__*/unwrapExports(src);
-
-export default index;

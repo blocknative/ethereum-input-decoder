@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "watch": true,
+        "outDir": "./dist",
+        "declarationDir": "./dist",
+        "declaration": true,
+    },
+    "types": "dist/index.ts",
+}
