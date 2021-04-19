@@ -17,7 +17,7 @@ var InputDataDecoder = /** @class */ (function () {
     function InputDataDecoder(prop, format) {
         if (format === void 0) { format = 'jsObject'; }
         try {
-            // ow(format, formatPredicate)
+            // ow(format, formatPredicate) // TODO: fix this ow bug
         }
         catch (e) {
             console.log('WARN: Invalid format, defaulting to \'jsObject\' format');
