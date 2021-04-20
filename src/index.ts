@@ -1,9 +1,9 @@
 import { Interface } from "../node_modules/ethers/lib/utils"
+import _ow from "../node_modules/ow/dist/index"
 
 const ethers = require('ethers')
 const { toChecksumAddress } = require('ethereumjs-util')
 const fs = require('fs')
-const { default: ow } = require('ow')
 
 interface bigNType {
   type: string;
@@ -20,9 +20,6 @@ interface typesObject {
 interface solidityObject extends typesObject {
   value: any;
 }
-
-// const VALID_FORMATS = ['jsObject', 'solidityType']
-// const formatPredicate = ow.string.is(s => VALID_FORMATS.includes(s)).message(value => `Expected valid 'format' (${VALID_FORMATS.join(', ')}) but got ${value}`)
 
 function decodeInput(decoderOrAbi: InputDataDecoder, input: string): Object | null {
   const decoder = !(decoderOrAbi as any).interface
@@ -41,7 +38,7 @@ class InputDataDecoder {
 
   constructor(prop: string | Object, format = 'jsObject') {
     try {
-      // ow(format, formatPredicate) // TODO: fix this ow bug
+      if (!format.match(/^(jsObject|solidityType)$/)) throw null
     } catch (e) {
       console.log('WARN: Invalid format, defaulting to \'jsObject\' format')
     }

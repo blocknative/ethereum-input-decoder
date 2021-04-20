@@ -3,14 +3,12 @@
 var ethers = require('ethers');
 var ethereumjsUtil = require('ethereumjs-util');
 var fs = require('fs');
-var ow = require('ow');
 
 function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
 var ethers__default = /*#__PURE__*/_interopDefaultLegacy(ethers);
 var ethereumjsUtil__default = /*#__PURE__*/_interopDefaultLegacy(ethereumjsUtil);
 var fs__default = /*#__PURE__*/_interopDefaultLegacy(fs);
-var ow__default = /*#__PURE__*/_interopDefaultLegacy(ow);
 
 function unwrapExports (x) {
 	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
@@ -35,9 +33,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 
 var toChecksumAddress = ethereumjsUtil__default['default'].toChecksumAddress;
 
-ow__default['default'].default;
-// const VALID_FORMATS = ['jsObject', 'solidityType']
-// const formatPredicate = ow.string.is(s => VALID_FORMATS.includes(s)).message(value => `Expected valid 'format' (${VALID_FORMATS.join(', ')}) but got ${value}`)
 function decodeInput(decoderOrAbi, input) {
     var decoder = !decoderOrAbi.interface
         ? new InputDataDecoder(decoderOrAbi) // ABI was passed
@@ -50,6 +45,13 @@ function decodeInput(decoderOrAbi, input) {
 var InputDataDecoder = /** @class */ (function () {
     function InputDataDecoder(prop, format) {
         if (format === void 0) { format = 'jsObject'; }
+        try {
+            if (!format.match(/^(jsObject|solidityType)$/))
+                throw null;
+        }
+        catch (e) {
+            console.log('WARN: Invalid format, defaulting to \'jsObject\' format');
+        }
         this.format = format;
         // create ethers interface for given abi
         if (typeof prop === 'string') {

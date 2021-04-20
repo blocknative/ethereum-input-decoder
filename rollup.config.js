@@ -17,9 +17,9 @@ export default {
       exports: 'default',
     },
   ],
-  external: ['ethereumjs-util', 'ethers', 'fs', 'ow'],
+  external: ['ethereumjs-util', 'ethers', 'fs'],
   plugins: [
     typescript({ module: 'CommonJS' }),
-    commonjs({ extensions: ['.js', '.ts'] }),
+    commonjs({ extensions: ['.ts'] }),
   ],
 }
