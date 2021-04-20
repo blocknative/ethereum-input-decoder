@@ -1,5 +1,4 @@
 import { Interface } from "../node_modules/ethers/lib/utils"
-import _ow from "../node_modules/ow/dist/index"
 
 const ethers = require('ethers')
 const { toChecksumAddress } = require('ethereumjs-util')
@@ -21,6 +20,9 @@ interface solidityObject extends typesObject {
   value: any;
 }
 
+type format = "jsObject" | "solidityType"
+
+
 function decodeInput(decoderOrAbi: InputDataDecoder, input: string): Object | null {
   const decoder = !(decoderOrAbi as any).interface
     ? new InputDataDecoder(decoderOrAbi) // ABI was passed
@@ -36,7 +38,8 @@ class InputDataDecoder {
   format: string
   interface: Interface
 
-  constructor(prop: string | Object, format = 'jsObject') {
+  constructor(prop: string | Object, format: format = 'jsObject') {
+    // TODO: remove this check - should be able to do this via types in arguments
     try {
       if (!format.match(/^(jsObject|solidityType)$/)) throw null
     } catch (e) {

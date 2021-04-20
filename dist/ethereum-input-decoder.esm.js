@@ -37,6 +37,7 @@ function decodeInput(decoderOrAbi, input) {
 var InputDataDecoder = /** @class */ (function () {
     function InputDataDecoder(prop, format) {
         if (format === void 0) { format = 'jsObject'; }
+        // TODO: remove this check - should be able to do this via types in arguments
         try {
             if (!format.match(/^(jsObject|solidityType)$/))
                 throw null;
