@@ -236,7 +236,7 @@ test('decoder', (t) => {
     }
 
     // solidityTypes format
-    const decoder2 = new InputDataDecoder(`${__dirname}/data/erc20_abi.json`, 'solidityTypes')
+    const decoder2 = new InputDataDecoder(`${__dirname}/data/erc20_abi.json`, 'solidityType')
     const result2 = decoder2.decodeData(data)
     const expectedTransfer2 = {
       methodName: 'transfer',

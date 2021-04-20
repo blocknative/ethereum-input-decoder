@@ -22,11 +22,13 @@ function commonjsRequire () {
 }
 
 var src = createCommonjsModule(function (module, exports) {
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 
 var toChecksumAddress = ethereumjsUtil.toChecksumAddress;
 
-ow["default"];
+ow.default;
+// const VALID_FORMATS = ['jsObject', 'solidityType']
+// const formatPredicate = ow.string.is(s => VALID_FORMATS.includes(s)).message(value => `Expected valid 'format' (${VALID_FORMATS.join(', ')}) but got ${value}`)
 function decodeInput(decoderOrAbi, input) {
     var decoder = !decoderOrAbi.interface
         ? new InputDataDecoder(decoderOrAbi) // ABI was passed
@@ -42,8 +44,8 @@ var InputDataDecoder = /** @class */ (function () {
         this.format = format;
         // create ethers interface for given abi
         if (typeof prop === 'string') {
-            prop = fs.readFileSync(prop);
-            this.interface = new ethers.utils.Interface(JSON.parse(prop));
+            prop = JSON.parse(fs.readFileSync(prop));
+            this.interface = new ethers.utils.Interface(prop);
         }
         else if (prop instanceof Object) {
             this.interface = new ethers.utils.Interface(prop);
@@ -57,21 +59,19 @@ var InputDataDecoder = /** @class */ (function () {
             // make tx object needed for some inputs with ethers library
             var tx = { data: data };
             tx.data = data;
-            // get verbose decoding / function fragment
-            var verboseDecode = this.interface.parseTransaction(tx);
-            // returns the parameters for the input
-            var rawParams = verboseDecode.args;
+            // get method inputs, method name, 
+            var _a = this.interface.parseTransaction(tx), methodInputs = _a.args, functionFragment = _a.functionFragment;
+            var inputTypes = functionFragment.inputs, methodName = functionFragment.name;
             // reduce the verbose types from function fragment to slim format
-            var types = transformVerboseTypes(verboseDecode.functionFragment.inputs);
+            var types = transformVerboseTypes(inputTypes);
             // map our decoded input arguments to their types
-            // TODO: remove parsing of value types from this function, into another for clarity
-            var params = mapTypesToInputs(types, rawParams);
-            // return early if solidity types
-            if (this.format === 'solidityTypes')
-                return { methodName: verboseDecode.functionFragment.name, params: params };
+            var params = mapTypesToInputs(types, methodInputs);
+            // return early if solidity type
+            if (this.format === 'solidityType')
+                return { methodName: methodName, params: params };
             // here we clean the input to not include types, and improve readability
             var jsObjectParams = transformToJSObject(params);
-            return { methodName: verboseDecode.functionFragment.name, params: jsObjectParams };
+            return { methodName: methodName, params: jsObjectParams };
         }
         catch (error) {
             // Eat all errors currently, can debug here once we find failed decodings
@@ -88,7 +88,7 @@ function mapTypesToInputs(types, inputs) {
             params.push(({
                 name: types[i].name,
                 type: types[i].type,
-                value: handleTuple(types[i], input)
+                value: handleTuple(types[i], input),
             }));
             return;
         }
@@ -115,7 +115,7 @@ function handleTuple(types, inputs) {
             params.push({
                 name: types.components[i].name,
                 type: types.components[i].type,
-                value: parsedValue
+                value: parsedValue,
             });
         });
     }
@@ -182,8 +182,6 @@ function transformToJSObjectNested(arr) {
     if (!Array.isArray(arr[0]) && !arr[0].name) {
         return arr;
     }
-    // Here complex type arrays are explained which helped type this recursive function
-    // https://stackoverflow.com/questions/56884065/typed-arrays-and-union-types
     return arr.reduce(function (r, _a) {
         var name = _a.name, value = _a.value;
         r[name] = value;
@@ -203,10 +201,11 @@ function transformToJSObject(params) {
     });
     return cleanParams;
 }
-exports["default"] = {
+exports.default = {
     InputDataDecoder: InputDataDecoder,
-    decodeInput: decodeInput
+    decodeInput: decodeInput,
 };
+//# sourceMappingURL=index.js.map
 });
 
 var index = /*@__PURE__*/unwrapExports(src);
