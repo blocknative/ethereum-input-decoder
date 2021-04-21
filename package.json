@@ -6,7 +6,7 @@
   "module": "dist/ethereum-input-decoder.esm.js",
   "types": "dist/index.ts",
   "scripts": {
-    "test": "npm run build && tape ./test/index.js",
+    "test": "npm run build && tape ./test/index.ts",
     "lint": "eslint .",
     "build": "rollup -c"
   },

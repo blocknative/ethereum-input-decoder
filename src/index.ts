@@ -74,7 +74,7 @@ class InputDataDecoder {
       const types = transformVerboseTypes(inputTypes)
 
       // map our decoded input arguments to their types
-      const params = mapTypesToInputs(types, methodInputs as methodInputsType)
+      const params = mapTypesToInputs(types, methodInputs)
 
       // return early if solidity type
       if (this.format === 'solidityType') return { methodName, params }
