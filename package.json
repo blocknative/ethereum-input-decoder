@@ -25,7 +25,8 @@
   "dependencies": {
     "ethereumjs-util": "^7.0.2",
     "ethers": "^5.0.32",
-    "tape": "^4.6.3"
+    "tape": "^4.6.3",
+    "benchmark": "^2.1.2"
   },
   "repository": {
     "type": "git",
