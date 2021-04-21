@@ -33,7 +33,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 
 var toChecksumAddress = ethereumjsUtil__default['default'].toChecksumAddress;
 
-var allowedFormats = ["jsObject", "solidityType"];
+var VALID_FORMATS = ["jsObject", "solidityType"];
 function decodeInput(decoderOrAbi, input) {
     var decoder = !decoderOrAbi.interface
         ? new InputDataDecoder(decoderOrAbi) // ABI was passed
@@ -46,7 +46,7 @@ function decodeInput(decoderOrAbi, input) {
 var InputDataDecoder = /** @class */ (function () {
     function InputDataDecoder(prop, format) {
         if (format === void 0) { format = 'jsObject'; }
-        if (allowedFormats.indexOf(format) < 0) {
+        if (VALID_FORMATS.indexOf(format) < 0) {
             console.log('WARN: Invalid format, defaulting to \'jsObject\' format');
         }
         this.format = format;

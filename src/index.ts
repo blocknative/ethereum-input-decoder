@@ -20,7 +20,7 @@ interface solidityObject extends typesObject {
   value: any;
 }
 
-const allowedFormats = ["jsObject", "solidityType"]
+const VALID_FORMATS = ["jsObject", "solidityType"]
 
 
 function decodeInput(decoderOrAbi: InputDataDecoder, input: string): Object | null {
@@ -39,7 +39,7 @@ class InputDataDecoder {
   interface: Interface
 
   constructor(prop: string | Object, format: string = 'jsObject') {
-    if (allowedFormats.indexOf(format) < 0) {
+    if (VALID_FORMATS.indexOf(format) < 0) {
       console.log('WARN: Invalid format, defaulting to \'jsObject\' format')
     }
 
