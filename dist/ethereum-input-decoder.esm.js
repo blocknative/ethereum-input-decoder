@@ -58,7 +58,6 @@ var InputDataDecoder = /** @class */ (function () {
         try {
             // make tx object needed for some inputs with ethers library
             var tx = { data: data };
-            tx.data = data;
             // get method inputs, method name, 
             var _a = this.interface.parseTransaction(tx), methodInputs = _a.args, functionFragment = _a.functionFragment;
             var inputTypes = functionFragment.inputs, methodName = functionFragment.name;

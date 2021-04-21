@@ -60,7 +60,6 @@ class InputDataDecoder {
     try {
       // make tx object needed for some inputs with ethers library
       const tx = { data }
-      tx.data = data
 
       // get method inputs, method name, 
       const { args: methodInputs, functionFragment }: { args, functionFragment } = this.interface.parseTransaction(tx)
