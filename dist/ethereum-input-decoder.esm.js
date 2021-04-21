@@ -25,6 +25,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 
 var toChecksumAddress = ethereumjsUtil.toChecksumAddress;
 
+var allowedFormats = ["jsObject", "solidityType"];
 function decodeInput(decoderOrAbi, input) {
     var decoder = !decoderOrAbi.interface
         ? new InputDataDecoder(decoderOrAbi) // ABI was passed
@@ -37,12 +38,7 @@ function decodeInput(decoderOrAbi, input) {
 var InputDataDecoder = /** @class */ (function () {
     function InputDataDecoder(prop, format) {
         if (format === void 0) { format = 'jsObject'; }
-        // TODO: remove this check - should be able to do this via types in arguments
-        try {
-            if (!format.match(/^(jsObject|solidityType)$/))
-                throw null;
-        }
-        catch (e) {
+        if (allowedFormats.indexOf(format) < 0) {
             console.log('WARN: Invalid format, defaulting to \'jsObject\' format');
         }
         this.format = format;

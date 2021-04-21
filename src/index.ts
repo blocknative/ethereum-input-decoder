@@ -20,7 +20,7 @@ interface solidityObject extends typesObject {
   value: any;
 }
 
-type format = "jsObject" | "solidityType"
+const allowedFormats = ["jsObject", "solidityType"]
 
 
 function decodeInput(decoderOrAbi: InputDataDecoder, input: string): Object | null {
@@ -38,11 +38,8 @@ class InputDataDecoder {
   format: string
   interface: Interface
 
-  constructor(prop: string | Object, format: format = 'jsObject') {
-    // TODO: remove this check - should be able to do this via types in arguments
-    try {
-      if (!format.match(/^(jsObject|solidityType)$/)) throw null
-    } catch (e) {
+  constructor(prop: string | Object, format: string = 'jsObject') {
+    if (allowedFormats.indexOf(format) < 0) {
       console.log('WARN: Invalid format, defaulting to \'jsObject\' format')
     }
 
