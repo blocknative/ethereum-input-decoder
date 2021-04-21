@@ -112,11 +112,13 @@ test('decoder', (t) => {
   // A tricky one since Etherscan provides the wrong abi
   // This abi will give warnings of duplicate definitions
   t.test('checking Compound: Comptroller', (t) => {
-    t.plan(1)
+    t.plan(2)
     const decoder = new InputDataDecoder(`${__dirname}/data/Comptroller_abi.json`)
-    const data = fs.readFileSync(`${__dirname}/data/Compound_Comptroller_input.txt`, 'utf8')
-    const result = decoder.decodeData(data)
-    const expectedClaimComp = {
+
+    // Here we only have one token
+    const data1 = fs.readFileSync(`${__dirname}/data/Compound_Comptroller_input.txt`, 'utf8')
+    const result1 = decoder.decodeData(data1)
+    const expectedClaimComp1 = {
       methodName: 'claimComp',
       params: {
         holder: '0xFFe5347961a41778Df7f930B49F61b20a4b82a9e',
@@ -125,7 +127,24 @@ test('decoder', (t) => {
         ],
       },
     }
-    t.deepEquals(result, expectedClaimComp)
+
+    // here we have multiple tokens
+    const data2 = fs.readFileSync(`${__dirname}/data/Compound_Comptroller_input2.txt`, 'utf8')
+    const result2 = decoder.decodeData(data2)
+    const expectedClaimComp2 = {
+      methodName: 'claimComp',
+      params: {
+        holder: '0x3051aDF392679E50Cd9B540fcF1720D1038310e1',
+        cTokens: [
+          '0x39AA39c021dfbaE8faC545936693aC917d5E7563',
+          '0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5',
+          '0x70e36f6BF80a52b3B46b3aF8e106CC0ed743E8e4',
+        ],
+      },
+    }
+
+    t.deepEquals(result1, expectedClaimComp1)
+    t.deepEquals(result2, expectedClaimComp2)
   })
 
   // https://etherscan.io/tx/0xbc2530efe613b4c061ea6757e2a7180973718f1d760c029840cfd531fde4c386
@@ -217,7 +236,7 @@ test('decoder', (t) => {
     }
 
     // solidityTypes format
-    const decoder2 = new InputDataDecoder(`${__dirname}/data/erc20_abi.json`, 'solidityTypes')
+    const decoder2 = new InputDataDecoder(`${__dirname}/data/erc20_abi.json`, 'solidityType')
     const result2 = decoder2.decodeData(data)
     const expectedTransfer2 = {
       methodName: 'transfer',
@@ -331,8 +350,6 @@ test('decoder', (t) => {
         minTotalAmountOut: '51941272581094527363184',
       },
     }
-
-
     t.deepEquals(result, expectedMultihopBatchSwapExactIn)
   })
 })

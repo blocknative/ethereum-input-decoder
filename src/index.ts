@@ -1,29 +1,45 @@
+import { Interface } from "../node_modules/ethers/lib/utils"
 
 const ethers = require('ethers')
 const { toChecksumAddress } = require('ethereumjs-util')
 const fs = require('fs')
-const { default: ow } = require('ow')
 
-const VALID_FORMATS = ['jsObject', 'solidityTypes']
-const formatPredicate = ow.string.is(s => VALID_FORMATS.includes(s) || `Expected valid 'format' (${VALID_FORMATS.join(', ')}) but got ${s}`)
+interface bigNType {
+  type: string;
+  hex: string;
+}
+type methodInputsType = Array<methodInputsType> | Array<String | bigNType>
 
-function decodeInput(decoderOrAbi, input) {
-  const decoder = !decoderOrAbi.interface
+interface typesObject {
+  name: string;
+  type: string;
+  components?: Array<typesObject>;
+}
+
+interface solidityObject extends typesObject {
+  value: any;
+}
+
+const VALID_FORMATS = ["jsObject", "solidityType"]
+
+
+function decodeInput(decoderOrAbi: InputDataDecoder, input: string): Object | null {
+  const decoder = !(decoderOrAbi as any).interface
     ? new InputDataDecoder(decoderOrAbi) // ABI was passed
     : decoderOrAbi // Decoder was passed
 
-  const data = decoder.decodeData(input)
+  const data = (decoder as InputDataDecoder).decodeData(input)
   if (!data || !data.methodName) return null
 
   return data
 }
 
 class InputDataDecoder {
-  constructor(prop, format = 'jsObject') {
-    // check format type
-    try {
-      ow(format, formatPredicate)
-    } catch (e) {
+  format: string
+  interface: Interface
+
+  constructor(prop: string | Object, format: string = 'jsObject') {
+    if (VALID_FORMATS.indexOf(format) < 0) {
       console.log('WARN: Invalid format, defaulting to \'jsObject\' format')
     }
 
@@ -31,8 +47,8 @@ class InputDataDecoder {
 
     // create ethers interface for given abi
     if (typeof prop === 'string') {
-      prop = fs.readFileSync(prop)
-      this.interface = new ethers.utils.Interface(JSON.parse(prop))
+      prop = JSON.parse(fs.readFileSync(prop))
+      this.interface = new ethers.utils.Interface(prop)
     } else if (prop instanceof Object) {
       this.interface = new ethers.utils.Interface(prop)
     } else {
@@ -40,31 +56,28 @@ class InputDataDecoder {
     }
   }
 
-  decodeData(data) {
+  decodeData(data: string) {
     try {
       // make tx object needed for some inputs with ethers library
-      const tx = {}
-      tx.data = data
+      const tx = { data }
 
-      // get verbose decoding / function fragment
-      const verboseDecode = this.interface.parseTransaction(tx)
+      // get method inputs, method name, 
+      const { args: methodInputs, functionFragment }: { args, functionFragment } = this.interface.parseTransaction(tx)
 
-      // returns the parameters for the input
-      const rawParams = verboseDecode.args
+      const { inputs: inputTypes, name: methodName } = functionFragment
 
       // reduce the verbose types from function fragment to slim format
-      const types = transformVerboseTypes(verboseDecode.functionFragment.inputs)
+      const types = transformVerboseTypes(inputTypes)
 
       // map our decoded input arguments to their types
-      // TODO: remove parsing of value types from this function, into another for clarity
-      const params = mapTypesToInputs(types, rawParams)
+      const params = mapTypesToInputs(types, methodInputs)
 
-      // return early if solidity types
-      if (this.format === 'solidityTypes') return { methodName: verboseDecode.functionFragment.name, params }
+      // return early if solidity type
+      if (this.format === 'solidityType') return { methodName, params }
 
       // here we clean the input to not include types, and improve readability
       const jsObjectParams = transformToJSObject(params)
-      return { methodName: verboseDecode.functionFragment.name, params: jsObjectParams }
+      return { methodName, params: jsObjectParams }
     } catch (error) {
       // Eat all errors currently, can debug here once we find failed decodings
     }
@@ -73,15 +86,15 @@ class InputDataDecoder {
 }
 
 // Zips inputs to types
-function mapTypesToInputs(types, inputs) {
-  const params = []
+function mapTypesToInputs(types: Array<typesObject>, inputs: methodInputsType): Array<solidityObject> {
+  const params = [] as Array<solidityObject>
   inputs.forEach((input, i) => {
     if (types[i].type.includes('tuple')) {
-      params.push({
+      params.push(({
         name: types[i].name,
         type: types[i].type,
         value: handleTuple(types[i], input),
-      })
+      }))
       return
     }
     const parsedValue = parseCallValue(input, types[i].type)
@@ -95,13 +108,13 @@ function handleTuple(types, inputs) {
   // Check for nested tuples here, flatten out but keep type
   // This is assuming children types of nested tuple arrays are the same as parent
   if (types.type.includes('[]')) {
+    // this clone is fast -> https://jsben.ch/bWfk9
     const tempType = Object.assign({}, types)
     tempType.type = tempType.type.slice(0, -2)
     inputs.forEach((input) => {
       params.push(handleTuple(tempType, input))
     })
   } else {
-    // console.log('Base -> mapping now')
     inputs.forEach((input, i) => {
       const parsedValue = parseCallValue(input, types.components[i].type)
       params.push({
@@ -114,7 +127,7 @@ function handleTuple(types, inputs) {
   return params
 }
 
-function parseCallValue(val, type) {
+function parseCallValue(val: any, type: string): any {
   try {
     if (type === 'address') return standardiseAddress(val)
     if (type.includes('address[')) return val.map(a => standardiseAddress(a))
@@ -137,7 +150,7 @@ function parseCallValue(val, type) {
   }
 }
 
-function transformVerboseTypes(inputs) {
+function transformVerboseTypes(inputs: any): Array<typesObject> {
   // Some funky flattening of tuple arrays (structures in Solidity)
   const typesToReturn = inputs.reduce((acc, obj, index) => {
     if (obj.type.includes('tuple')) {
@@ -146,32 +159,32 @@ function transformVerboseTypes(inputs) {
     }
     acc[index] = { name: obj.name, type: obj.type }
     return acc
-  }, [])
+  }, []) as Array<typesObject>
 
   return typesToReturn
 }
 
-function cleanTupleTypes(tupleTypes) {
+function cleanTupleTypes(tupleTypes: Array<typesObject>): Array<Object> {
   return tupleTypes.map(comp => ({ name: comp.name, type: comp.type }))
 }
 
-function standardiseAddress(ad) {
+function standardiseAddress(ad: string): string {
   if (!ad.startsWith('0x')) return toChecksumAddress(`0x${ad}`)
   return toChecksumAddress(ad)
 }
 
+
 function transformToJSObjectNested(arr) {
   // Check for deeper nesting
-  if (Array.isArray(arr[0]) && !arr[0].name) {
+  if (Array.isArray(arr[0]) && !((arr as Array<typesObject>)[0]).name) {
     const arrParams = []
-    arr.forEach((p) => { arrParams.push(transformToJSObjectNested(p)) })
+    arr.forEach((p) => arrParams.push(transformToJSObjectNested(p)))
     return arrParams
   }
   // Check for array leaf value
   if (!Array.isArray(arr[0]) && !arr[0].name) {
     return arr
   }
-
   return arr.reduce((r, { name, value }) => {
     r[name] = value
     return r
@@ -181,6 +194,7 @@ function transformToJSObjectNested(arr) {
 function transformToJSObject(params) {
   const cleanParams = {}
   params.forEach((p) => {
+    p = p // redefine type in this codeblock
     if (Array.isArray(p.value)) {
       p.name = !p.name ? '' : p.name
       cleanParams[p.name] = transformToJSObjectNested(p.value)

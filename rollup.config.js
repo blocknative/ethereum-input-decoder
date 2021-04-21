@@ -1,9 +1,10 @@
 import commonjs from '@rollup/plugin-commonjs'
+import typescript from 'rollup-plugin-typescript'
 
 import pkg from './package.json'
 
 export default {
-  input: 'src/index.js',
+  input: 'src/index.ts',
   output: [
     {
       format: 'esm',
@@ -16,6 +17,9 @@ export default {
       exports: 'default',
     },
   ],
-  external: ['ethereumjs-util', 'ethers', 'fs', 'ow'],
-  plugins: [commonjs()],
+  external: ['ethereumjs-util', 'ethers', 'fs'],
+  plugins: [
+    typescript({ module: 'CommonJS' }),
+    commonjs({ extensions: ['.ts'] }),
+  ],
 }

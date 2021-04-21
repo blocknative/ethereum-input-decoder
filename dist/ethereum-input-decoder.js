@@ -1,200 +1,220 @@
 'use strict';
 
-const ethers = require('ethers');
-const { toChecksumAddress } = require('ethereumjs-util');
-const fs = require('fs');
-const { default: ow } = require('ow');
+var ethers = require('ethers');
+var ethereumjsUtil = require('ethereumjs-util');
+var fs = require('fs');
 
-const VALID_FORMATS = ['jsObject', 'solidityTypes'];
-const formatPredicate = ow.string.is(s => VALID_FORMATS.includes(s) || `Expected valid 'format' (${VALID_FORMATS.join(', ')}) but got ${s}`);
+function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
+var ethers__default = /*#__PURE__*/_interopDefaultLegacy(ethers);
+var ethereumjsUtil__default = /*#__PURE__*/_interopDefaultLegacy(ethereumjsUtil);
+var fs__default = /*#__PURE__*/_interopDefaultLegacy(fs);
+
+function unwrapExports (x) {
+	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+}
+
+function createCommonjsModule(fn, basedir, module) {
+	return module = {
+	  path: basedir,
+	  exports: {},
+	  require: function (path, base) {
+      return commonjsRequire(path, (base === undefined || base === null) ? module.path : base);
+    }
+	}, fn(module, module.exports), module.exports;
+}
+
+function commonjsRequire () {
+	throw new Error('Dynamic requires are not currently supported by @rollup/plugin-commonjs');
+}
+
+var src = createCommonjsModule(function (module, exports) {
+Object.defineProperty(exports, "__esModule", { value: true });
+
+var toChecksumAddress = ethereumjsUtil__default['default'].toChecksumAddress;
+
+var VALID_FORMATS = ["jsObject", "solidityType"];
 function decodeInput(decoderOrAbi, input) {
-  const decoder = !decoderOrAbi.interface
-    ? new InputDataDecoder(decoderOrAbi) // ABI was passed
-    : decoderOrAbi; // Decoder was passed
-
-  const data = decoder.decodeData(input);
-  if (!data || !data.methodName) return null
-
-  return data
+    var decoder = !decoderOrAbi.interface
+        ? new InputDataDecoder(decoderOrAbi) // ABI was passed
+        : decoderOrAbi; // Decoder was passed
+    var data = decoder.decodeData(input);
+    if (!data || !data.methodName)
+        return null;
+    return data;
 }
-
-class InputDataDecoder {
-  constructor(prop, format = 'jsObject') {
-    // check format type
-    try {
-      ow(format, formatPredicate);
-    } catch (e) {
-      console.log('WARN: Invalid format, defaulting to \'jsObject\' format');
+var InputDataDecoder = /** @class */ (function () {
+    function InputDataDecoder(prop, format) {
+        if (format === void 0) { format = 'jsObject'; }
+        if (VALID_FORMATS.indexOf(format) < 0) {
+            console.log('WARN: Invalid format, defaulting to \'jsObject\' format');
+        }
+        this.format = format;
+        // create ethers interface for given abi
+        if (typeof prop === 'string') {
+            prop = JSON.parse(fs__default['default'].readFileSync(prop));
+            this.interface = new ethers__default['default'].utils.Interface(prop);
+        }
+        else if (prop instanceof Object) {
+            this.interface = new ethers__default['default'].utils.Interface(prop);
+        }
+        else {
+            throw new TypeError('Must pass ABI array object or file path to constructor');
+        }
     }
-
-    this.format = format;
-
-    // create ethers interface for given abi
-    if (typeof prop === 'string') {
-      prop = fs.readFileSync(prop);
-      this.interface = new ethers.utils.Interface(JSON.parse(prop));
-    } else if (prop instanceof Object) {
-      this.interface = new ethers.utils.Interface(prop);
-    } else {
-      throw new TypeError('Must pass ABI array object or file path to constructor')
-    }
-  }
-
-  decodeData(data) {
-    try {
-      // make tx object needed for some inputs with ethers library
-      const tx = {};
-      tx.data = data;
-
-      // get verbose decoding / function fragment
-      const verboseDecode = this.interface.parseTransaction(tx);
-
-      // returns the parameters for the input
-      const rawParams = verboseDecode.args;
-
-      // reduce the verbose types from function fragment to slim format
-      const types = transformVerboseTypes(verboseDecode.functionFragment.inputs);
-
-      // map our decoded input arguments to their types
-      // TODO: remove parsing of value types from this function, into another for clarity
-      const params = mapTypesToInputs(types, rawParams);
-
-      // return early if solidity types
-      if (this.format === 'solidityTypes') return { methodName: verboseDecode.functionFragment.name, params }
-
-      // here we clean the input to not include types, and improve readability
-      const jsObjectParams = transformToJSObject(params);
-      return { methodName: verboseDecode.functionFragment.name, params: jsObjectParams }
-    } catch (error) {
-      // Eat all errors currently, can debug here once we find failed decodings
-    }
-    return null
-  }
-}
-
+    InputDataDecoder.prototype.decodeData = function (data) {
+        try {
+            // make tx object needed for some inputs with ethers library
+            var tx = { data: data };
+            // get method inputs, method name, 
+            var _a = this.interface.parseTransaction(tx), methodInputs = _a.args, functionFragment = _a.functionFragment;
+            var inputTypes = functionFragment.inputs, methodName = functionFragment.name;
+            // reduce the verbose types from function fragment to slim format
+            var types = transformVerboseTypes(inputTypes);
+            // map our decoded input arguments to their types
+            var params = mapTypesToInputs(types, methodInputs);
+            // return early if solidity type
+            if (this.format === 'solidityType')
+                return { methodName: methodName, params: params };
+            // here we clean the input to not include types, and improve readability
+            var jsObjectParams = transformToJSObject(params);
+            return { methodName: methodName, params: jsObjectParams };
+        }
+        catch (error) {
+            // Eat all errors currently, can debug here once we find failed decodings
+        }
+        return null;
+    };
+    return InputDataDecoder;
+}());
 // Zips inputs to types
 function mapTypesToInputs(types, inputs) {
-  const params = [];
-  inputs.forEach((input, i) => {
-    if (types[i].type.includes('tuple')) {
-      params.push({
-        name: types[i].name,
-        type: types[i].type,
-        value: handleTuple(types[i], input),
-      });
-      return
-    }
-    const parsedValue = parseCallValue(input, types[i].type);
-    params.push({ name: types[i].name, type: types[i].type, value: parsedValue });
-  });
-  return params
+    var params = [];
+    inputs.forEach(function (input, i) {
+        if (types[i].type.includes('tuple')) {
+            params.push(({
+                name: types[i].name,
+                type: types[i].type,
+                value: handleTuple(types[i], input),
+            }));
+            return;
+        }
+        var parsedValue = parseCallValue(input, types[i].type);
+        params.push({ name: types[i].name, type: types[i].type, value: parsedValue });
+    });
+    return params;
 }
-
 function handleTuple(types, inputs) {
-  const params = [];
-  // Check for nested tuples here, flatten out but keep type
-  // This is assuming children types of nested tuple arrays are the same as parent
-  if (types.type.includes('[]')) {
-    const tempType = Object.assign({}, types);
-    tempType.type = tempType.type.slice(0, -2);
-    inputs.forEach((input) => {
-      params.push(handleTuple(tempType, input));
-    });
-  } else {
-    // console.log('Base -> mapping now')
-    inputs.forEach((input, i) => {
-      const parsedValue = parseCallValue(input, types.components[i].type);
-      params.push({
-        name: types.components[i].name,
-        type: types.components[i].type,
-        value: parsedValue,
-      });
-    });
-  }
-  return params
+    var params = [];
+    // Check for nested tuples here, flatten out but keep type
+    // This is assuming children types of nested tuple arrays are the same as parent
+    if (types.type.includes('[]')) {
+        // this clone is fast -> https://jsben.ch/bWfk9
+        var tempType_1 = Object.assign({}, types);
+        tempType_1.type = tempType_1.type.slice(0, -2);
+        inputs.forEach(function (input) {
+            params.push(handleTuple(tempType_1, input));
+        });
+    }
+    else {
+        inputs.forEach(function (input, i) {
+            var parsedValue = parseCallValue(input, types.components[i].type);
+            params.push({
+                name: types.components[i].name,
+                type: types.components[i].type,
+                value: parsedValue,
+            });
+        });
+    }
+    return params;
 }
-
 function parseCallValue(val, type) {
-  try {
-    if (type === 'address') return standardiseAddress(val)
-    if (type.includes('address[')) return val.map(a => standardiseAddress(a))
-    if (type === 'string' || type.includes('string[')) return val
-    if (type.includes('int[')) return val.map(v => v.toString())
-    if (type.includes('int256[')) return val.map(v => v.toString())
-    if (type.includes('int8[')) return val.map(v => v.toString())
-    if (type.includes('int')) return val.toString()
-    if (type.includes('bool')) return val
-    if (type.includes('bytes32[')) return val
-    if (type.includes('bytes[')) return val
-    if (type.includes('bytes')) return val
-    throw Error(`Unknown type ${type}`)
-  } catch (error) {
-    throw Error(
-      `Failed to decode { type: '${JSON.stringify(
-        type,
-      )}', val: '${val}', typeof val: '${typeof val}' }: ${error}`,
-    )
-  }
+    try {
+        if (type === 'address')
+            return standardiseAddress(val);
+        if (type.includes('address['))
+            return val.map(function (a) { return standardiseAddress(a); });
+        if (type === 'string' || type.includes('string['))
+            return val;
+        if (type.includes('int['))
+            return val.map(function (v) { return v.toString(); });
+        if (type.includes('int256['))
+            return val.map(function (v) { return v.toString(); });
+        if (type.includes('int8['))
+            return val.map(function (v) { return v.toString(); });
+        if (type.includes('int'))
+            return val.toString();
+        if (type.includes('bool'))
+            return val;
+        if (type.includes('bytes32['))
+            return val;
+        if (type.includes('bytes['))
+            return val;
+        if (type.includes('bytes'))
+            return val;
+        throw Error("Unknown type " + type);
+    }
+    catch (error) {
+        throw Error("Failed to decode { type: '" + JSON.stringify(type) + "', val: '" + val + "', typeof val: '" + typeof val + "' }: " + error);
+    }
 }
-
 function transformVerboseTypes(inputs) {
-  // Some funky flattening of tuple arrays (structures in Solidity)
-  const typesToReturn = inputs.reduce((acc, obj, index) => {
-    if (obj.type.includes('tuple')) {
-      acc[index] = { name: obj.name, type: obj.type, components: cleanTupleTypes(obj.components) };
-      return acc
-    }
-    acc[index] = { name: obj.name, type: obj.type };
-    return acc
-  }, []);
-
-  return typesToReturn
+    // Some funky flattening of tuple arrays (structures in Solidity)
+    var typesToReturn = inputs.reduce(function (acc, obj, index) {
+        if (obj.type.includes('tuple')) {
+            acc[index] = { name: obj.name, type: obj.type, components: cleanTupleTypes(obj.components) };
+            return acc;
+        }
+        acc[index] = { name: obj.name, type: obj.type };
+        return acc;
+    }, []);
+    return typesToReturn;
 }
-
 function cleanTupleTypes(tupleTypes) {
-  return tupleTypes.map(comp => ({ name: comp.name, type: comp.type }))
+    return tupleTypes.map(function (comp) { return ({ name: comp.name, type: comp.type }); });
 }
-
 function standardiseAddress(ad) {
-  if (!ad.startsWith('0x')) return toChecksumAddress(`0x${ad}`)
-  return toChecksumAddress(ad)
+    if (!ad.startsWith('0x'))
+        return toChecksumAddress("0x" + ad);
+    return toChecksumAddress(ad);
 }
-
 function transformToJSObjectNested(arr) {
-  // Check for deeper nesting
-  if (Array.isArray(arr[0]) && !arr[0].name) {
-    const arrParams = [];
-    arr.forEach((p) => { arrParams.push(transformToJSObjectNested(p)); });
-    return arrParams
-  }
-  // Check for array leaf value
-  if (!Array.isArray(arr[0]) && !arr[0].name) {
-    return arr
-  }
-
-  return arr.reduce((r, { name, value }) => {
-    r[name] = value;
-    return r
-  }, {})
-}
-
-function transformToJSObject(params) {
-  const cleanParams = {};
-  params.forEach((p) => {
-    if (Array.isArray(p.value)) {
-      p.name = !p.name ? '' : p.name;
-      cleanParams[p.name] = transformToJSObjectNested(p.value);
-      return
+    // Check for deeper nesting
+    if (Array.isArray(arr[0]) && !(arr[0]).name) {
+        var arrParams_1 = [];
+        arr.forEach(function (p) { return arrParams_1.push(transformToJSObjectNested(p)); });
+        return arrParams_1;
     }
-    cleanParams[p.name] = p.value;
-  });
-  return cleanParams
+    // Check for array leaf value
+    if (!Array.isArray(arr[0]) && !arr[0].name) {
+        return arr;
+    }
+    return arr.reduce(function (r, _a) {
+        var name = _a.name, value = _a.value;
+        r[name] = value;
+        return r;
+    }, {});
 }
-
-var index = {
-  InputDataDecoder,
-  decodeInput,
+function transformToJSObject(params) {
+    var cleanParams = {};
+    params.forEach(function (p) {
+        p = p; // redefine type in this codeblock
+        if (Array.isArray(p.value)) {
+            p.name = !p.name ? '' : p.name;
+            cleanParams[p.name] = transformToJSObjectNested(p.value);
+            return;
+        }
+        cleanParams[p.name] = p.value;
+    });
+    return cleanParams;
+}
+exports.default = {
+    InputDataDecoder: InputDataDecoder,
+    decodeInput: decodeInput,
 };
+//# sourceMappingURL=index.js.map
+});
+
+var index = /*@__PURE__*/unwrapExports(src);
 
 module.exports = index;
