@@ -38,7 +38,7 @@ decoderSuite.on('cycle', (event) => {
 })
 decoderSuite.on('complete', () => {
   console.log(createDecoderTimes)
-  console.log(`The fastest decoder to create is ${this.filter('fastest').map('name')}`)
+  console.log(`The fastest decoder to create is ${objectTypeSuite.filter('fastest').map('name')}`)
 })
 
 
@@ -79,7 +79,7 @@ decodingSuite.on('cycle', (event) => {
 })
 decodingSuite.on('complete', () => {
   console.log(decodingTimes)
-  console.log(`The fastest decoding is done by ${this.filter('fastest').map('name')}`)
+  console.log(`The fastest decoding is done by ${objectTypeSuite.filter('fastest').map('name')}`)
 })
 
 
@@ -107,5 +107,5 @@ objectTypeSuite.on('cycle', (event) => {
 })
 objectTypeSuite.on('complete', () => {
   console.log(formatCompareTimes)
-  console.log(`The fastest format to decode to is ${this.filter('fastest').map('name')}`)
+  console.log(`The fastest format to decode to is ${objectTypeSuite.filter('fastest').map('name')}`)
 })
