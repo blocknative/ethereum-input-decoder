@@ -23,21 +23,20 @@ function commonjsRequire () {
 var src = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 
-var toChecksumAddress = ethereumjsUtil.toChecksumAddress;
+const { toChecksumAddress } = ethereumjsUtil;
 
-var VALID_FORMATS = ["jsObject", "solidityType"];
+const VALID_FORMATS = ["jsObject", "solidityType"];
 function decodeInput(decoderOrAbi, input) {
-    var decoder = !decoderOrAbi.interface
+    const decoder = !decoderOrAbi.interface
         ? new InputDataDecoder(decoderOrAbi) // ABI was passed
         : decoderOrAbi; // Decoder was passed
-    var data = decoder.decodeData(input);
+    const data = decoder.decodeData(input);
     if (!data || !data.methodName)
         return null;
     return data;
 }
-var InputDataDecoder = /** @class */ (function () {
-    function InputDataDecoder(prop, format) {
-        if (format === void 0) { format = 'jsObject'; }
+class InputDataDecoder {
+    constructor(prop, format = 'jsObject') {
         if (VALID_FORMATS.indexOf(format) < 0) {
             console.log('WARN: Invalid format, defaulting to \'jsObject\' format');
         }
@@ -54,35 +53,34 @@ var InputDataDecoder = /** @class */ (function () {
             throw new TypeError('Must pass ABI array object or file path to constructor');
         }
     }
-    InputDataDecoder.prototype.decodeData = function (data) {
+    decodeData(data) {
         try {
             // make tx object needed for some inputs with ethers library
-            var tx = { data: data };
+            const tx = { data };
             // get method inputs, method name, 
-            var _a = this.interface.parseTransaction(tx), methodInputs = _a.args, functionFragment = _a.functionFragment;
-            var inputTypes = functionFragment.inputs, methodName = functionFragment.name;
+            const { args: methodInputs, functionFragment } = this.interface.parseTransaction(tx);
+            const { inputs: inputTypes, name: methodName } = functionFragment;
             // reduce the verbose types from function fragment to slim format
-            var types = transformVerboseTypes(inputTypes);
+            const types = transformVerboseTypes(inputTypes);
             // map our decoded input arguments to their types
-            var params = mapTypesToInputs(types, methodInputs);
+            const params = mapTypesToInputs(types, methodInputs);
             // return early if solidity type
             if (this.format === 'solidityType')
-                return { methodName: methodName, params: params };
+                return { methodName, params };
             // here we clean the input to not include types, and improve readability
-            var jsObjectParams = transformToJSObject(params);
-            return { methodName: methodName, params: jsObjectParams };
+            const jsObjectParams = transformToJSObject(params);
+            return { methodName, params: jsObjectParams };
         }
         catch (error) {
             // Eat all errors currently, can debug here once we find failed decodings
         }
         return null;
-    };
-    return InputDataDecoder;
-}());
+    }
+}
 // Zips inputs to types
 function mapTypesToInputs(types, inputs) {
-    var params = [];
-    inputs.forEach(function (input, i) {
+    const params = [];
+    inputs.forEach((input, i) => {
         if (types[i].type.includes('tuple')) {
             params.push(({
                 name: types[i].name,
@@ -91,26 +89,26 @@ function mapTypesToInputs(types, inputs) {
             }));
             return;
         }
-        var parsedValue = parseCallValue(input, types[i].type);
+        const parsedValue = parseCallValue(input, types[i].type);
         params.push({ name: types[i].name, type: types[i].type, value: parsedValue });
     });
     return params;
 }
 function handleTuple(types, inputs) {
-    var params = [];
+    const params = [];
     // Check for nested tuples here, flatten out but keep type
     // This is assuming children types of nested tuple arrays are the same as parent
     if (types.type.includes('[]')) {
         // this clone is fast -> https://jsben.ch/bWfk9
-        var tempType_1 = Object.assign({}, types);
-        tempType_1.type = tempType_1.type.slice(0, -2);
-        inputs.forEach(function (input) {
-            params.push(handleTuple(tempType_1, input));
+        const tempType = Object.assign({}, types);
+        tempType.type = tempType.type.slice(0, -2);
+        inputs.forEach((input) => {
+            params.push(handleTuple(tempType, input));
         });
     }
     else {
-        inputs.forEach(function (input, i) {
-            var parsedValue = parseCallValue(input, types.components[i].type);
+        inputs.forEach((input, i) => {
+            const parsedValue = parseCallValue(input, types.components[i].type);
             params.push({
                 name: types.components[i].name,
                 type: types.components[i].type,
@@ -125,15 +123,15 @@ function parseCallValue(val, type) {
         if (type === 'address')
             return standardiseAddress(val);
         if (type.includes('address['))
-            return val.map(function (a) { return standardiseAddress(a); });
+            return val.map(a => standardiseAddress(a));
         if (type === 'string' || type.includes('string['))
             return val;
         if (type.includes('int['))
-            return val.map(function (v) { return v.toString(); });
+            return val.map(v => v.toString());
         if (type.includes('int256['))
-            return val.map(function (v) { return v.toString(); });
+            return val.map(v => v.toString());
         if (type.includes('int8['))
-            return val.map(function (v) { return v.toString(); });
+            return val.map(v => v.toString());
         if (type.includes('int'))
             return val.toString();
         if (type.includes('bool'))
@@ -144,15 +142,15 @@ function parseCallValue(val, type) {
             return val;
         if (type.includes('bytes'))
             return val;
-        throw Error("Unknown type " + type);
+        throw Error(`Unknown type ${type}`);
     }
     catch (error) {
-        throw Error("Failed to decode { type: '" + JSON.stringify(type) + "', val: '" + val + "', typeof val: '" + typeof val + "' }: " + error);
+        throw Error(`Failed to decode { type: '${JSON.stringify(type)}', val: '${val}', typeof val: '${typeof val}' }: ${error}`);
     }
 }
 function transformVerboseTypes(inputs) {
     // Some funky flattening of tuple arrays (structures in Solidity)
-    var typesToReturn = inputs.reduce(function (acc, obj, index) {
+    const typesToReturn = inputs.reduce((acc, obj, index) => {
         if (obj.type.includes('tuple')) {
             acc[index] = { name: obj.name, type: obj.type, components: cleanTupleTypes(obj.components) };
             return acc;
@@ -163,33 +161,32 @@ function transformVerboseTypes(inputs) {
     return typesToReturn;
 }
 function cleanTupleTypes(tupleTypes) {
-    return tupleTypes.map(function (comp) { return ({ name: comp.name, type: comp.type }); });
+    return tupleTypes.map(comp => ({ name: comp.name, type: comp.type }));
 }
 function standardiseAddress(ad) {
     if (!ad.startsWith('0x'))
-        return toChecksumAddress("0x" + ad);
+        return toChecksumAddress(`0x${ad}`);
     return toChecksumAddress(ad);
 }
 function transformToJSObjectNested(arr) {
     // Check for deeper nesting
     if (Array.isArray(arr[0]) && !(arr[0]).name) {
-        var arrParams_1 = [];
-        arr.forEach(function (p) { return arrParams_1.push(transformToJSObjectNested(p)); });
-        return arrParams_1;
+        const arrParams = [];
+        arr.forEach((p) => arrParams.push(transformToJSObjectNested(p)));
+        return arrParams;
     }
     // Check for array leaf value
     if (!Array.isArray(arr[0]) && !arr[0].name) {
         return arr;
     }
-    return arr.reduce(function (r, _a) {
-        var name = _a.name, value = _a.value;
+    return arr.reduce((r, { name, value }) => {
         r[name] = value;
         return r;
     }, {});
 }
 function transformToJSObject(params) {
-    var cleanParams = {};
-    params.forEach(function (p) {
+    const cleanParams = {};
+    params.forEach((p) => {
         p = p; // redefine type in this codeblock
         if (Array.isArray(p.value)) {
             p.name = !p.name ? '' : p.name;
@@ -201,8 +198,8 @@ function transformToJSObject(params) {
     return cleanParams;
 }
 exports.default = {
-    InputDataDecoder: InputDataDecoder,
-    decodeInput: decodeInput,
+    InputDataDecoder,
+    decodeInput,
 };
 //# sourceMappingURL=index.js.map
 });

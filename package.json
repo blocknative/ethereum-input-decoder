@@ -6,9 +6,10 @@
   "module": "dist/ethereum-input-decoder.esm.js",
   "types": "dist/index.ts",
   "scripts": {
-    "test": "npm run build && tape ./test/index.ts",
+    "test": "npm run build && tape ./test/tests.ts",
     "lint": "eslint .",
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "benchmark": "node test/benchmarking.ts"
   },
   "author": "Blocknative, Alexander Campbell",
   "license": "ISC",
