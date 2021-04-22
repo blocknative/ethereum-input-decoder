@@ -1,14 +1,15 @@
 {
   "name": "ethereum-input-decoder",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Decodes inputs for a given abi",
   "main": "dist/ethereum-input-decoder.js",
   "module": "dist/ethereum-input-decoder.esm.js",
   "types": "dist/index.ts",
   "scripts": {
-    "test": "npm run build && tape ./test/index.ts",
+    "test": "npm run build && tape ./test/tests.ts",
     "lint": "eslint .",
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "benchmark": "node test/benchmarking.js"
   },
   "author": "Blocknative, Alexander Campbell",
   "license": "ISC",
@@ -23,6 +24,8 @@
     "typescript": "^4.2.4"
   },
   "dependencies": {
+    "@types/node": "^14.14.41",
+    "benchmark": "^2.1.2",
     "ethereumjs-util": "^7.0.2",
     "ethers": "^5.0.32",
     "tape": "^4.6.3"
