@@ -1,7 +1,9 @@
+/* eslint-disable no-unused-vars */
 const { Benchmark } = require('benchmark')
-const fs = require('fs')
 const path = require('path')
-const { InputDataDecoder, decodeInput } = require('../dist/ethereum-input-decoder')
+const fs = require('fs')
+const { InputDataDecoder } = require('../dist/ethereum-input-decoder')
+
 
 // TODO: figure out queueing suites, might be easier!
 console.log('This benchmark takes approximately 5 minutes to run in full. Please comment out parts you don\'t want.')
@@ -27,16 +29,16 @@ decoderSuite.add('Creating 0x v3 Decoder (large ABI ~3k lines in pretty json)', 
 
 // Collating information
 decoderSuite.run({
-  async: true, // tests will be made asynchronously (IS THIS BAD? Node engine might do silly non deterministic optimizations)
+  async: true,
   minTime: 1,
 })
-let createDecoderTimes = []
+const createDecoderTimes = []
 decoderSuite.on('cycle', (event) => {
   createDecoderTimes.push(String(event.target))
 })
-decoderSuite.on('complete', function () {
+decoderSuite.on('complete', () => {
   console.log(createDecoderTimes)
-  console.log('The fastest decoder to create is ' + this.filter('fastest').map('name'))
+  console.log(`The fastest decoder to create is ${this.filter('fastest').map('name')}`)
 })
 
 
@@ -71,14 +73,15 @@ decodingSuite.run({
   async: true,
   minTime: 1,
 })
-let decodingTimes = []
+const decodingTimes = []
 decodingSuite.on('cycle', (event) => {
   decodingTimes.push(String(event.target))
 })
-decodingSuite.on('complete', function () {
+decodingSuite.on('complete', () => {
   console.log(decodingTimes)
-  console.log('The fastest decoding is done by ' + this.filter('fastest').map('name'))
+  console.log(`The fastest decoding is done by ${this.filter('fastest').map('name')}`)
 })
+
 
 // ------------- Benchmarking difference of jsObject and solidityType -------------
 
@@ -97,14 +100,12 @@ objectTypeSuite.add('Decoding to solidityType', () => {
 })
 
 // Collating information
-objectTypeSuite.run({
-  async: true,
-})
-let formatCompareTimes = []
+objectTypeSuite.run({ async: true })
+const formatCompareTimes = []
 objectTypeSuite.on('cycle', (event) => {
   formatCompareTimes.push(String(event.target))
 })
-objectTypeSuite.on('complete', function () {
+objectTypeSuite.on('complete', () => {
   console.log(formatCompareTimes)
-  console.log('The fastest format to decode to is ' + this.filter('fastest').map('name'))
+  console.log(`The fastest format to decode to is ${this.filter('fastest').map('name')}`)
 })

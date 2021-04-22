@@ -9,7 +9,7 @@
     "test": "npm run build && tape ./test/tests.ts",
     "lint": "eslint .",
     "build": "rollup -c",
-    "benchmark": "node test/benchmarking.ts"
+    "benchmark": "node test/benchmarking.js"
   },
   "author": "Blocknative, Alexander Campbell",
   "license": "ISC",
@@ -24,10 +24,11 @@
     "typescript": "^4.2.4"
   },
   "dependencies": {
+    "@types/node": "^14.14.41",
+    "benchmark": "^2.1.2",
     "ethereumjs-util": "^7.0.2",
     "ethers": "^5.0.32",
-    "tape": "^4.6.3",
-    "benchmark": "^2.1.2"
+    "tape": "^4.6.3"
   },
   "repository": {
     "type": "git",

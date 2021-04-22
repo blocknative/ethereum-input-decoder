@@ -1,5 +1,4 @@
 /* eslint-disable no-shadow */
-export { }
 const fs = require('fs')
 const test = require('tape')
 const { InputDataDecoder, decodeInput } = require('../dist/ethereum-input-decoder')
