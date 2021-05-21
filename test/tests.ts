@@ -352,4 +352,21 @@ test('decoder', (t) => {
     }
     t.deepEquals(result, expectedMultihopBatchSwapExactIn)
   })
+
+  t.test('Erc1155 decoding testing', (t) => {
+    t.plan(1)
+
+    const decoder = new InputDataDecoder(`${__dirname}/data/erc1155Mint_abi.json`)
+    const data = '0xa22cb4650000000000000000000000004fee7b061c97c9c496b01dbce9cdb10c02f0a0be0000000000000000000000000000000000000000000000000000000000000001'
+    // const data = '0xf242432a0000000000000000000000000dd2fbef14b7a0a3e2d94934fdb76d2406fc8f2b0000000000000000000000009f979c20aef3eedf3d5eab33b8d356361909a2e90000000000000000000000000000000000000000000000000000000000083bd2000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000'
+    const result = decoder.decodeData(data)
+    const expectedBatchCreate = {
+      "methodName": "setApprovalForAll",
+      "params": {
+        "operator": "0x4feE7B061C97C9c496b01DbcE9CDb10c02f0a0Be",
+        "approved": true
+      }
+    }
+    t.deepEquals(result, result)
+  })
 })
