@@ -366,6 +366,6 @@ test('decoder', (t) => {
         "approved": true
       }
     }
-    t.deepEquals(result, result)
+    t.deepEquals(result, expectedBatchCreate)
   })
 })
