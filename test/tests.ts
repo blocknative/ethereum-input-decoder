@@ -359,13 +359,13 @@ test('decoder', (t) => {
     const decoder = new InputDataDecoder(`${__dirname}/data/erc1155Mint_abi.json`)
     const data = '0xa22cb4650000000000000000000000004fee7b061c97c9c496b01dbce9cdb10c02f0a0be0000000000000000000000000000000000000000000000000000000000000001'
     const result = decoder.decodeData(data)
-    const expectedBatchCreate = {
+    const expectedSetApprovalForAll = {
       "methodName": "setApprovalForAll",
       "params": {
         "operator": "0x4feE7B061C97C9c496b01DbcE9CDb10c02f0a0Be",
         "approved": true
       }
     }
-    t.deepEquals(result, expectedBatchCreate)
+    t.deepEquals(result, expectedSetApprovalForAll)
   })
 })
