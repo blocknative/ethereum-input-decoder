@@ -27,7 +27,8 @@
     "@types/node": "^14.14.41",
     "benchmark": "^2.1.2",
     "ethereumjs-util": "^7.0.2",
-    "ethers": "^5.0.32",
+    "ethers": "^5.4.6",
+    "lodash": "^4.17.21",
     "tape": "^4.6.3"
   },
   "repository": {
