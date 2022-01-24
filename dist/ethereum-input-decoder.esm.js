@@ -57,8 +57,11 @@ class InputDataDecoder {
         try {
             // make tx object needed for some inputs with ethers library
             const tx = { data };
+            console.log('butt');
             // get method inputs, method name, 
             const { args: methodInputs, functionFragment } = this.interface.parseTransaction(tx);
+            console.log('\nPrinting methodInputs:\n');
+            console.log(methodInputs);
             const { inputs: inputTypes, name: methodName } = functionFragment;
             // reduce the verbose types from function fragment to slim format
             const types = transformVerboseTypes(inputTypes);
