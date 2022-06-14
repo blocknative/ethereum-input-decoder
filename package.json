@@ -9,7 +9,8 @@
     "test": "npm run build && tape ./test/tests.ts",
     "lint": "eslint .",
     "build": "rollup -c",
-    "benchmark": "node test/benchmarking.js"
+    "benchmark": "node test/benchmarking.js",
+    "watch-test": "nodemon --watch 'src/**/*.ts' --exec tape ./test/tests.ts"
   },
   "author": "Blocknative, Alexander Campbell",
   "license": "ISC",
@@ -28,6 +29,7 @@
     "benchmark": "^2.1.2",
     "ethereumjs-util": "^7.0.2",
     "ethers": "^5.0.32",
+    "nodemon": "^2.0.15",
     "tape": "^4.6.3"
   },
   "repository": {

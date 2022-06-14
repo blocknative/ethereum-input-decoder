@@ -81,6 +81,7 @@ class InputDataDecoder {
         }
         catch (error) {
             // Eat all errors currently, can debug here once we find failed decodings
+            console.log(error);
         }
         return null;
     }
