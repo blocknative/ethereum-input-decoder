@@ -1,0 +1,753 @@
+
+> ethereum-input-decoder@0.1.7 test /home/alexander/Documents/Blocknative_work/misc/ethereum-input-decoder
+> npm run build && tape ./test/tests.ts
+
+
+> ethereum-input-decoder@0.1.7 build /home/alexander/Documents/Blocknative_work/misc/ethereum-input-decoder
+> rollup -c
+
+TAP version 13
+# decoder
+# Seaport 1.1
+{
+  "args": [
+    [
+      [
+        "0xD9D52F157F4Ea47f52639e8bF606775d18bea317",
+        "0xF397619df7Bfd4D1657EA9bDd9DF7FF888731A11",
+        [
+          [
+            1,
+            "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+            {
+              "type": "BigNumber",
+              "hex": "0x00"
+            },
+            {
+              "type": "BigNumber",
+              "hex": "0x2bb2c8eabcc000"
+            },
+            {
+              "type": "BigNumber",
+              "hex": "0x2bb2c8eabcc000"
+            }
+          ]
+        ],
+        [
+          [
+            4,
+            "0x3F53082981815Ed8142384EDB1311025cA750Ef1",
+            {
+              "type": "BigNumber",
+              "hex": "0x00"
+            },
+            {
+              "type": "BigNumber",
+              "hex": "0x01"
+            },
+            {
+              "type": "BigNumber",
+              "hex": "0x01"
+            },
+            "0xD9D52F157F4Ea47f52639e8bF606775d18bea317"
+          ],
+          [
+            1,
+            "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+            {
+              "type": "BigNumber",
+              "hex": "0x00"
+            },
+            {
+              "type": "BigNumber",
+              "hex": "0x0117ab6c44b800"
+            },
+            {
+              "type": "BigNumber",
+              "hex": "0x0117ab6c44b800"
+            },
+            "0x5b3256965e7C3cF26E11FCAf296DfC8807C01073"
+          ],
+          [
+            1,
+            "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+            {
+              "type": "BigNumber",
+              "hex": "0x00"
+            },
+            {
+              "type": "BigNumber",
+              "hex": "0x0117ab6c44b800"
+            },
+            {
+              "type": "BigNumber",
+              "hex": "0x0117ab6c44b800"
+            },
+            "0x5A3F8913C9eaCa9Ac1AfaE60263F555F97586e43"
+          ]
+        ],
+        0,
+        {
+          "type": "BigNumber",
+          "hex": "0x00"
+        },
+        {
+          "type": "BigNumber",
+          "hex": "0x62a911a4"
+        },
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        {
+          "type": "BigNumber",
+          "hex": "0xe68597e558d0b6"
+        },
+        "0x0000007b02230091a7ed01230072f7006a004d60a8d4e71d599b8104250f0000",
+        {
+          "type": "BigNumber",
+          "hex": "0x03"
+        }
+      ],
+      {
+        "type": "BigNumber",
+        "hex": "0x01"
+      },
+      {
+        "type": "BigNumber",
+        "hex": "0x01"
+      },
+      "0x894ea472a93fdfb3db09233e1d9728848f2bc89de19c4372d98c46ca893736053724073b81e8a25d9710364c9d21f1a32ffa701b8e9374eec90b620ec82986f51b",
+      "0x"
+    ],
+    [
+      [
+        {
+          "type": "BigNumber",
+          "hex": "0x00"
+        },
+        1,
+        {
+          "type": "BigNumber",
+          "hex": "0x00"
+        },
+        {
+          "type": "BigNumber",
+          "hex": "0x23"
+        },
+        []
+      ]
+    ],
+    "0x0000007b02230091a7ed01230072f7006a004d60a8d4e71d599b8104250f0000",
+    "0x0000000000000000000000000000000000000000"
+  ],
+  "functionFragment": {
+    "type": "function",
+    "name": "fulfillAdvancedOrder",
+    "constant": false,
+    "inputs": [
+      {
+        "name": "advancedOrder",
+        "type": "tuple",
+        "indexed": null,
+        "components": [
+          {
+            "name": "parameters",
+            "type": "tuple",
+            "indexed": null,
+            "components": [
+              {
+                "name": "offerer",
+                "type": "address",
+                "indexed": null,
+                "components": null,
+                "arrayLength": null,
+                "arrayChildren": null,
+                "baseType": "address",
+                "_isParamType": true
+              },
+              {
+                "name": "zone",
+                "type": "address",
+                "indexed": null,
+                "components": null,
+                "arrayLength": null,
+                "arrayChildren": null,
+                "baseType": "address",
+                "_isParamType": true
+              },
+              {
+                "name": "offer",
+                "type": "tuple[]",
+                "indexed": null,
+                "components": [
+                  {
+                    "name": "itemType",
+                    "type": "uint8",
+                    "indexed": null,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null,
+                    "baseType": "uint8",
+                    "_isParamType": true
+                  },
+                  {
+                    "name": "token",
+                    "type": "address",
+                    "indexed": null,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null,
+                    "baseType": "address",
+                    "_isParamType": true
+                  },
+                  {
+                    "name": "identifierOrCriteria",
+                    "type": "uint256",
+                    "indexed": null,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null,
+                    "baseType": "uint256",
+                    "_isParamType": true
+                  },
+                  {
+                    "name": "startAmount",
+                    "type": "uint256",
+                    "indexed": null,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null,
+                    "baseType": "uint256",
+                    "_isParamType": true
+                  },
+                  {
+                    "name": "endAmount",
+                    "type": "uint256",
+                    "indexed": null,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null,
+                    "baseType": "uint256",
+                    "_isParamType": true
+                  }
+                ],
+                "arrayLength": -1,
+                "arrayChildren": {
+                  "name": null,
+                  "type": "tuple",
+                  "indexed": null,
+                  "components": [
+                    {
+                      "name": "itemType",
+                      "type": "uint8",
+                      "indexed": null,
+                      "components": null,
+                      "arrayLength": null,
+                      "arrayChildren": null,
+                      "baseType": "uint8",
+                      "_isParamType": true
+                    },
+                    {
+                      "name": "token",
+                      "type": "address",
+                      "indexed": null,
+                      "components": null,
+                      "arrayLength": null,
+                      "arrayChildren": null,
+                      "baseType": "address",
+                      "_isParamType": true
+                    },
+                    {
+                      "name": "identifierOrCriteria",
+                      "type": "uint256",
+                      "indexed": null,
+                      "components": null,
+                      "arrayLength": null,
+                      "arrayChildren": null,
+                      "baseType": "uint256",
+                      "_isParamType": true
+                    },
+                    {
+                      "name": "startAmount",
+                      "type": "uint256",
+                      "indexed": null,
+                      "components": null,
+                      "arrayLength": null,
+                      "arrayChildren": null,
+                      "baseType": "uint256",
+                      "_isParamType": true
+                    },
+                    {
+                      "name": "endAmount",
+                      "type": "uint256",
+                      "indexed": null,
+                      "components": null,
+                      "arrayLength": null,
+                      "arrayChildren": null,
+                      "baseType": "uint256",
+                      "_isParamType": true
+                    }
+                  ],
+                  "arrayLength": null,
+                  "arrayChildren": null,
+                  "baseType": "tuple",
+                  "_isParamType": true
+                },
+                "baseType": "array",
+                "_isParamType": true
+              },
+              {
+                "name": "consideration",
+                "type": "tuple[]",
+                "indexed": null,
+                "components": [
+                  {
+                    "name": "itemType",
+                    "type": "uint8",
+                    "indexed": null,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null,
+                    "baseType": "uint8",
+                    "_isParamType": true
+                  },
+                  {
+                    "name": "token",
+                    "type": "address",
+                    "indexed": null,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null,
+                    "baseType": "address",
+                    "_isParamType": true
+                  },
+                  {
+                    "name": "identifierOrCriteria",
+                    "type": "uint256",
+                    "indexed": null,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null,
+                    "baseType": "uint256",
+                    "_isParamType": true
+                  },
+                  {
+                    "name": "startAmount",
+                    "type": "uint256",
+                    "indexed": null,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null,
+                    "baseType": "uint256",
+                    "_isParamType": true
+                  },
+                  {
+                    "name": "endAmount",
+                    "type": "uint256",
+                    "indexed": null,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null,
+                    "baseType": "uint256",
+                    "_isParamType": true
+                  },
+                  {
+                    "name": "recipient",
+                    "type": "address",
+                    "indexed": null,
+                    "components": null,
+                    "arrayLength": null,
+                    "arrayChildren": null,
+                    "baseType": "address",
+                    "_isParamType": true
+                  }
+                ],
+                "arrayLength": -1,
+                "arrayChildren": {
+                  "name": null,
+                  "type": "tuple",
+                  "indexed": null,
+                  "components": [
+                    {
+                      "name": "itemType",
+                      "type": "uint8",
+                      "indexed": null,
+                      "components": null,
+                      "arrayLength": null,
+                      "arrayChildren": null,
+                      "baseType": "uint8",
+                      "_isParamType": true
+                    },
+                    {
+                      "name": "token",
+                      "type": "address",
+                      "indexed": null,
+                      "components": null,
+                      "arrayLength": null,
+                      "arrayChildren": null,
+                      "baseType": "address",
+                      "_isParamType": true
+                    },
+                    {
+                      "name": "identifierOrCriteria",
+                      "type": "uint256",
+                      "indexed": null,
+                      "components": null,
+                      "arrayLength": null,
+                      "arrayChildren": null,
+                      "baseType": "uint256",
+                      "_isParamType": true
+                    },
+                    {
+                      "name": "startAmount",
+                      "type": "uint256",
+                      "indexed": null,
+                      "components": null,
+                      "arrayLength": null,
+                      "arrayChildren": null,
+                      "baseType": "uint256",
+                      "_isParamType": true
+                    },
+                    {
+                      "name": "endAmount",
+                      "type": "uint256",
+                      "indexed": null,
+                      "components": null,
+                      "arrayLength": null,
+                      "arrayChildren": null,
+                      "baseType": "uint256",
+                      "_isParamType": true
+                    },
+                    {
+                      "name": "recipient",
+                      "type": "address",
+                      "indexed": null,
+                      "components": null,
+                      "arrayLength": null,
+                      "arrayChildren": null,
+                      "baseType": "address",
+                      "_isParamType": true
+                    }
+                  ],
+                  "arrayLength": null,
+                  "arrayChildren": null,
+                  "baseType": "tuple",
+                  "_isParamType": true
+                },
+                "baseType": "array",
+                "_isParamType": true
+              },
+              {
+                "name": "orderType",
+                "type": "uint8",
+                "indexed": null,
+                "components": null,
+                "arrayLength": null,
+                "arrayChildren": null,
+                "baseType": "uint8",
+                "_isParamType": true
+              },
+              {
+                "name": "startTime",
+                "type": "uint256",
+                "indexed": null,
+                "components": null,
+                "arrayLength": null,
+                "arrayChildren": null,
+                "baseType": "uint256",
+                "_isParamType": true
+              },
+              {
+                "name": "endTime",
+                "type": "uint256",
+                "indexed": null,
+                "components": null,
+                "arrayLength": null,
+                "arrayChildren": null,
+                "baseType": "uint256",
+                "_isParamType": true
+              },
+              {
+                "name": "zoneHash",
+                "type": "bytes32",
+                "indexed": null,
+                "components": null,
+                "arrayLength": null,
+                "arrayChildren": null,
+                "baseType": "bytes32",
+                "_isParamType": true
+              },
+              {
+                "name": "salt",
+                "type": "uint256",
+                "indexed": null,
+                "components": null,
+                "arrayLength": null,
+                "arrayChildren": null,
+                "baseType": "uint256",
+                "_isParamType": true
+              },
+              {
+                "name": "conduitKey",
+                "type": "bytes32",
+                "indexed": null,
+                "components": null,
+                "arrayLength": null,
+                "arrayChildren": null,
+                "baseType": "bytes32",
+                "_isParamType": true
+              },
+              {
+                "name": "totalOriginalConsiderationItems",
+                "type": "uint256",
+                "indexed": null,
+                "components": null,
+                "arrayLength": null,
+                "arrayChildren": null,
+                "baseType": "uint256",
+                "_isParamType": true
+              }
+            ],
+            "arrayLength": null,
+            "arrayChildren": null,
+            "baseType": "tuple",
+            "_isParamType": true
+          },
+          {
+            "name": "numerator",
+            "type": "uint120",
+            "indexed": null,
+            "components": null,
+            "arrayLength": null,
+            "arrayChildren": null,
+            "baseType": "uint120",
+            "_isParamType": true
+          },
+          {
+            "name": "denominator",
+            "type": "uint120",
+            "indexed": null,
+            "components": null,
+            "arrayLength": null,
+            "arrayChildren": null,
+            "baseType": "uint120",
+            "_isParamType": true
+          },
+          {
+            "name": "signature",
+            "type": "bytes",
+            "indexed": null,
+            "components": null,
+            "arrayLength": null,
+            "arrayChildren": null,
+            "baseType": "bytes",
+            "_isParamType": true
+          },
+          {
+            "name": "extraData",
+            "type": "bytes",
+            "indexed": null,
+            "components": null,
+            "arrayLength": null,
+            "arrayChildren": null,
+            "baseType": "bytes",
+            "_isParamType": true
+          }
+        ],
+        "arrayLength": null,
+        "arrayChildren": null,
+        "baseType": "tuple",
+        "_isParamType": true
+      },
+      {
+        "name": "criteriaResolvers",
+        "type": "tuple[]",
+        "indexed": null,
+        "components": [
+          {
+            "name": "orderIndex",
+            "type": "uint256",
+            "indexed": null,
+            "components": null,
+            "arrayLength": null,
+            "arrayChildren": null,
+            "baseType": "uint256",
+            "_isParamType": true
+          },
+          {
+            "name": "side",
+            "type": "uint8",
+            "indexed": null,
+            "components": null,
+            "arrayLength": null,
+            "arrayChildren": null,
+            "baseType": "uint8",
+            "_isParamType": true
+          },
+          {
+            "name": "index",
+            "type": "uint256",
+            "indexed": null,
+            "components": null,
+            "arrayLength": null,
+            "arrayChildren": null,
+            "baseType": "uint256",
+            "_isParamType": true
+          },
+          {
+            "name": "identifier",
+            "type": "uint256",
+            "indexed": null,
+            "components": null,
+            "arrayLength": null,
+            "arrayChildren": null,
+            "baseType": "uint256",
+            "_isParamType": true
+          },
+          {
+            "name": "criteriaProof",
+            "type": "bytes32[]",
+            "indexed": null,
+            "components": null,
+            "arrayLength": -1,
+            "arrayChildren": {
+              "name": null,
+              "type": "bytes32",
+              "indexed": null,
+              "components": null,
+              "arrayLength": null,
+              "arrayChildren": null,
+              "baseType": "bytes32",
+              "_isParamType": true
+            },
+            "baseType": "array",
+            "_isParamType": true
+          }
+        ],
+        "arrayLength": -1,
+        "arrayChildren": {
+          "name": null,
+          "type": "tuple",
+          "indexed": null,
+          "components": [
+            {
+              "name": "orderIndex",
+              "type": "uint256",
+              "indexed": null,
+              "components": null,
+              "arrayLength": null,
+              "arrayChildren": null,
+              "baseType": "uint256",
+              "_isParamType": true
+            },
+            {
+              "name": "side",
+              "type": "uint8",
+              "indexed": null,
+              "components": null,
+              "arrayLength": null,
+              "arrayChildren": null,
+              "baseType": "uint8",
+              "_isParamType": true
+            },
+            {
+              "name": "index",
+              "type": "uint256",
+              "indexed": null,
+              "components": null,
+              "arrayLength": null,
+              "arrayChildren": null,
+              "baseType": "uint256",
+              "_isParamType": true
+            },
+            {
+              "name": "identifier",
+              "type": "uint256",
+              "indexed": null,
+              "components": null,
+              "arrayLength": null,
+              "arrayChildren": null,
+              "baseType": "uint256",
+              "_isParamType": true
+            },
+            {
+              "name": "criteriaProof",
+              "type": "bytes32[]",
+              "indexed": null,
+              "components": null,
+              "arrayLength": -1,
+              "arrayChildren": {
+                "name": null,
+                "type": "bytes32",
+                "indexed": null,
+                "components": null,
+                "arrayLength": null,
+                "arrayChildren": null,
+                "baseType": "bytes32",
+                "_isParamType": true
+              },
+              "baseType": "array",
+              "_isParamType": true
+            }
+          ],
+          "arrayLength": null,
+          "arrayChildren": null,
+          "baseType": "tuple",
+          "_isParamType": true
+        },
+        "baseType": "array",
+        "_isParamType": true
+      },
+      {
+        "name": "fulfillerConduitKey",
+        "type": "bytes32",
+        "indexed": null,
+        "components": null,
+        "arrayLength": null,
+        "arrayChildren": null,
+        "baseType": "bytes32",
+        "_isParamType": true
+      },
+      {
+        "name": "recipient",
+        "type": "address",
+        "indexed": null,
+        "components": null,
+        "arrayLength": null,
+        "arrayChildren": null,
+        "baseType": "address",
+        "_isParamType": true
+      }
+    ],
+    "outputs": [
+      {
+        "name": "fulfilled",
+        "type": "bool",
+        "indexed": null,
+        "components": null,
+        "arrayLength": null,
+        "arrayChildren": null,
+        "baseType": "bool",
+        "_isParamType": true
+      }
+    ],
+    "payable": true,
+    "stateMutability": "payable",
+    "gas": null,
+    "_isFragment": true
+  },
+  "name": "fulfillAdvancedOrder",
+  "signature": "fulfillAdvancedOrder(((address,address,(uint8,address,uint256,uint256,uint256)[],(uint8,address,uint256,uint256,uint256,address)[],uint8,uint256,uint256,bytes32,uint256,bytes32,uint256),uint120,uint120,bytes,bytes),(uint256,uint8,uint256,uint256,bytes32[])[],bytes32,address)",
+  "sighash": "0xe7acab24",
+  "value": {
+    "type": "BigNumber",
+    "hex": "0x00"
+  }
+}
+undefined
+ok 1 should be equivalent
+
+1..1
+# tests 1
+# pass  1
+
+# ok
+
