@@ -78,32 +78,22 @@ class InputDataDecoder {
       // // here we clean the input to not include types, and improve readability
       // const jsObjectParams = transformToJSObject(params)
 
-      // NEW DECODING?
-
+      // NEW DECODING METHOD HERE!
 
       // Grab the arguments out via ethers parseTransaction function
       const decodedData = this.interface.parseTransaction({ data })
+      // Returned format quirks to mold into our Blocknative format:
+      //  - Strange array format, where it doubles up for list generator reasons
+      //  - empty argument names mess with the order and structure of nested arrays, must cast to ''
+      //  - Is not always perfectly recursable or in array forms.
 
-      const methodName = decodedData.name
+      console.log('decodedData.args')
+      console.log(decodedData.args)
 
-      // Grab the length
-      // const inputLength = decodedData.args.length
-      // console.log('inputLength: ', inputLength)
-      // console.log('frags: ', decodedData.functionFragment.inputs.length)
+      // Clean up the formatting, un-hex values, correct empty names, arrayify some objects.
+      const paramsNew = transformParamsNew(decodedData.args)
 
-      // Slice this object
-      // const paramsSliced = Object.entries(decodedData.args).slice(inputLength, inputLength * 2)
-
-      // I need to go through entries, taking index(length+i) names (keys) and associating them with the ith values
-      // This will keep the 'invisible' names from dissapearing fml
-      const entriesFixed = getEntriesCorrected(decodedData.args)
-
-      // Clean up the formatting, un-hex values
-      const paramsNew = transformParamsNew(entriesFixed)
-
-      // console.log(JSON.stringify(paramsSliced, null, 2))
-      // console.log(JSON.stringify(jsObjectParams, null, 2))
-      return { methodName, params: paramsNew }
+      return { methodName: decodedData.name, params: paramsNew }
     } catch (error) {
       // Eat all errors currently, can debug here once we find failed decodings
       console.log(error)
@@ -112,44 +102,77 @@ class InputDataDecoder {
   }
 }
 
-function getEntriesCorrected(argsObject) {
-  const inputLength = argsObject.length
-  const entriesFixed = []
-  const entries = Object.entries(argsObject)
-  console.log('argsObject: ', argsObject)
-
-  for (let i = 0; i < inputLength; i++) {
-    let key
-    let value
-    try {
-      // console.log(entries[i + inputLength][0])
-      // console.log(entries[i][1])
-      key = entries[i + inputLength][0]
-    } catch (error) {
-      // console.log('found empty name')
-      // console.log(entries[i][1])
-      key = ''
-    }
-    value = entries[i][1]
-    entriesFixed.push([key, value])
-  }
-  console.log('entriesFixed')
-  console.log(entriesFixed)
-  return entriesFixed
-}
-
 function transformParamsNew(params) {
+
+  // Create returning object of argument parameters
   let resParams = {}
-  params.forEach((input) => {
-    // console.log(input)
 
-    // Check for special cases, if not, add to resParams
-    if (Array.isArray(input[1]) && Array.isArray(input[1][0])) {
-      // Found nesting
-      // console.log('Need to recurse')
-      // console.log(input[1])
+  // Remove non named values, to be able to iterable without duplicates
+  const correctedEntries = getEntriesCorrected(params)
 
-      resParams[input[0]] = paramListRecurse(input[1])
+  correctedEntries.forEach((input) => {
+
+    console.log('som stats')
+    console.log(input)
+    console.log('Array.isArray:', Array.isArray(input[1]))
+    console.log('instance of array:', input[1] instanceof Array)
+    console.log('object:', input[1] instanceof Object)
+    if (typeof input[1] === 'string' || input[1] instanceof String) console.log('UH OH !!!!!!!!!!!!!!!!!!!!!!!!!!')
+
+    // Check for nested arguments, this starts a recursive call
+    // TODO ALEX: do we need to check this ISN'T A STRING?
+    if (Array.isArray(input[1])) {
+
+      // Make temp list for starting a recursive call to transformParamsNew()
+      let tempList = []
+
+      const correctedInput = getEntriesCorrected(input[1])
+
+      console.log('attempt at correcting a nesting?')
+      console.log('length:', correctedInput.length)
+      console.log(correctedInput)
+
+      correctedInput.forEach((i) => {
+        console.log('i')
+        console.log(i)
+        // console.log('transformParamsNew([i])')
+        // console.log(transformParamsNew([i]))
+      })
+
+      // Iterate through possible nesting items
+      // DO WE NEED THIS?
+      // correctedi.forEach((i) => {
+
+      //   if (typeof i === 'string' || i instanceof String) {
+      //     console.log('FOUND STRING DO NOT RECURSE')
+      //     console.log(i)
+      //     console.log('input[0]')
+      //     console.log(input[0])
+      //     tempList.push(i)
+      //     return
+      //   }
+
+      //   const iPossiblyCorrected = getEntriesCorrected(i)
+
+      //   // TODO ALEX: how do I know this is a typed thingy and not a array like thinky, like strings (addresses)
+      //   if (iPossiblyCorrected.length == 0) {
+      //     console.log('Found 0 length!, i: ')
+      //     console.log(i)
+      //     tempList.push(transformParamsNew([i]))
+      //   } else {
+      //     // Found a recursive case
+      //     console.log('Found non 0 length of nesting, recursing, i:')
+      //     console.log(i)
+
+      //     // tempList.push(transformParamsNew(i))
+      //     tempList.push(i)
+      //   }
+      // })
+      resParams[input[0]] = tempList
+      return
+
+      // todo alex: do i need this next line?
+      // resParams[input[0]] = paramListRecurse(input[1])
     }
     // @ts-ignore: _isBigNumber won't exist on all values
     else if (input[1] && input[1]._isBigNumber) {
@@ -159,54 +182,44 @@ function transformParamsNew(params) {
       // No special cases, add to resParams
       resParams[input[0]] = input[1]
     }
-    // console.log("--")
   })
-  // console.log(JSON.stringify(resParams, null, 2))
   return resParams
 }
 
-function paramListRecurse(input) {
-  let resList = []
+// This function corrects the array formatting returned by ethers.
+// The array format from ethers returns in the format:
+// [ aVal, bVal, aName: aVal, bName: bVal]
+// So we want to skip the first values to allow this to be easily iterable.
+// This also fills in the empty values with no names.
+function getEntriesCorrected(argsObject) {
 
-  input.forEach(i => {
-    // console.log(i, Array.isArray(i))
-    // console.log(i[0], Array.isArray(i[0]))
+  const inputLength = argsObject.length
+  const entriesFixed = []
+  const entries = Object.entries(argsObject)
 
-    if (Array.isArray(i) && Array.isArray(i[0])) {
-      console.log('this has deeper levels, recursing')
-      resList.push(paramListRecurse(i))
-    } else {
-
-      console.log('typeof i')
-      console.log(typeof i)
-
-      console.log('i: ', i)
-      const iSliced = getEntriesCorrected(i)
-
-      console.log('\n\nislice:')
-      console.log(iSliced)
-      console.log('\n\n')
-
-      let resObj = {}
-      // iSliced.forEach(n => {
-      //   // @ts-ignore: _isBigNumber won't exist on all values
-      //   if (n[1] && n[1]._isBigNumber) {
-      //     // Found hex value BigNumber, translate and replace
-      //     resObj[n[0]] = n[1].toString()
-      //   } else {
-      //     // No special cases, add to resParams
-      //     resObj[n[0]] = n[1]
-      //   }
-      // })
-      // TODO ALEX: testing this below rn!!!
-      resObj = transformParamsNew(iSliced)
-      console.log('resObj')
-      console.log(resObj)
-      resList.push(resObj)
+  for (let i = 0; i < inputLength; i++) {
+    let key
+    let value
+    try {
+      key = entries[i + inputLength][0]
+    } catch (e) {
+      if (e instanceof TypeError) {
+        // Incorrectly indexed where there should be a name key, thus it is empty
+        key = ''
+      } else {
+        // TODO ALEX: comment this out on release
+        console.log('Found unknown error: ', e)
+      }
     }
-  })
-  return resList
+    value = entries[i][1]
+    entriesFixed.push([key, value])
+  }
+
+  // console.log('fixed entires:')
+  // console.log(entriesFixed)
+  return entriesFixed
 }
+
 
 // Zips inputs to types
 function mapTypesToInputs(types: Array<typesObject>, inputs: methodInputsType): Array<solidityObject> {
