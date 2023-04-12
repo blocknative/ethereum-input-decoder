@@ -140,6 +140,7 @@ function parseCallValue(val: any, type: string): any {
     if (type.includes('bytes32[')) return val
     if (type.includes('bytes[')) return val
     if (type.includes('bytes')) return val
+    if (type.includes('tuple[')) return val.map(v => v.toString())
     throw Error(`Unknown type ${type}`)
   } catch (error) {
     throw Error(
