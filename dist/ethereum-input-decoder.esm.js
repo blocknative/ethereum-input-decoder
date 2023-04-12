@@ -142,6 +142,8 @@ function parseCallValue(val, type) {
             return val;
         if (type.includes('bytes'))
             return val;
+        if (type.includes('tuple['))
+            return val.map(v => v.toString());
         throw Error(`Unknown type ${type}`);
     }
     catch (error) {
