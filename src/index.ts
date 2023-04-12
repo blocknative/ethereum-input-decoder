@@ -116,12 +116,12 @@ function handleTuple(types, inputs) {
     })
   } else {
     inputs.forEach((input, i) => {
-      const parsedValue = parseCallValue(input, types.components[i].type)
-      params.push({
-        name: types.components[i].name,
-        type: types.components[i].type,
-        value: parsedValue,
-      })
+        const parsedValue = parseCallValue(input, types.components[i].type)
+        params.push({
+          name: types.components[i].name,
+          type: types.components[i].type,
+          value: parsedValue,
+        })
     })
   }
   return params
